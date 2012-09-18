@@ -1,0 +1,106 @@
+<!-- IF S_KEYWORD_VERSION -->
+<!--
+/**
+* UCP Account Link Create Template for Prosilver
+*
+* @author Michael Flenniken, Jr drakkim@conclavewiz.comm
+*
+* @version $Id: ucp_account_link_create.html 77 2012-09-02 10:48:53Z drakkim $
+* @copyright (c) 2008 Michael Flenniken, Jr
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+*/
+//-->
+<!-- ENDIF -->
+<!-- INCLUDE ucp_header.html -->
+
+<h2>{L_ACCOUNT_LINK}</h2>
+
+<!-- IF IS_MASTER_ACCOUNT -->
+<!-- Add Account Links -->
+<form id="link_users" method="post" action="{U_ACTION}">
+	<div class="panel">
+		<div class="inner">
+			<span class="corners-top"><span></span></span>
+			<fieldset>
+				<p>{L_CREATE_LINKED_ACCOUNT_EXPLAIN}</p>
+				<!-- IF ERROR --><div class="error">{ERROR}</div><!-- ENDIF -->
+				
+				<dl>
+					<dt><label>{L_MASTER_NAME}:</label></dt>
+					<dd>{S_MASTER_NAME}<hidden name="master_name" value="{S_MASTER_NAME}" /></dd>
+				</dl><dl>
+					<dt><label for="master_pass">{L_MASTER_PASS}:</label></dt>
+					<dd><input class="text medium" name="master_pass" type="password"></dd>
+				</dl><dl>
+					<dt><label for="linked_name">{L_LINKED_NAME}:</label></dt>
+					<dd><input class="text medium" name="linked_name" type="text"></dd>
+				</dl><dl>	
+					<dt><label for="linked_pass">{L_LINKED_PASS}:</label></dt>
+					<dd><input class="text medium" name="linked_pass" type="password"></dd>
+				</dl><dl>
+					<dt><label for="confirm_pass">{L_CONFIRM_PASSWORD}:</label></dt>
+					<dd><input class="text  medium" name="confirm_pass" type="password"></dd>
+				
+				<!-- BEGIN profilerow -->
+				</dl><dl>
+					<dt><label for="profilerow.NAME">{profilerow.LABEL}:</label></dt>
+					<dd><input class="text  medium" name="profilerow.NAME" id="profilerow.NAME"></dd>
+				</dl><dl>
+				<!-- END profilerow -->
+				</dl>
+				{S_HIDDEN_FIELDS}
+			</fieldset>
+
+	<!-- IF .groups -->
+
+			<ul class="topiclist">
+				<li class="header">
+					<dl>
+						<dt>{L_UCP_USERGROUPS}</dt>
+						<dd class="mark">{L_SELECT}</dd>
+					</dl>
+				</li>
+			</ul>
+			<ul class="topiclist cplist">
+
+			<!-- BEGIN groups -->
+			<!-- IF groups.S_CAN_JOIN -->
+				<!-- DEFINE $SHOW_BUTTONS = 1 -->
+			<!-- ENDIF -->		
+			<li class="row<!-- IF groups.S_ROW_COUNT is odd --> bg1<!-- ELSE --> bg2<!-- ENDIF -->">
+				<dl>
+					<dt>
+					<a href="{groups.U_VIEW_GROUP}" class="forumtitle"<!-- IF groups.GROUP_COLOUR --> style="color:#{groups.GROUP_COLOUR}"<!-- ENDIF -->>{groups.GROUP_NAME}</a>
+					<!-- IF groups.GROUP_DESC --><br />{groups.GROUP_DESC}<!-- ENDIF -->
+					<!-- IF not groups.GROUP_SPECIAL --><br /><i>{groups.GROUP_STATUS}</i><!-- ENDIF -->
+					</dt>
+					<dd class="mark"><input type="radio" name="main_group" value="{groups.GROUP_ID}" <!-- IF not groups.S_CAN_JOIN -->disable-d="disabled"<!-- ENDIF --> /></dd>
+				</dl>
+			</li>
+			<!-- END groups -->
+			</ul>
+	<!-- ENDIF -->
+		<span class="corners-bottom"><span></span></span></div>
+	</div>
+	
+
+	<fieldset class="submit-buttons">
+		<input class="button1" type="submit" name="submit" value="{L_CREATE_LINKED_ACCOUNT}" />&nbsp;&nbsp;
+		<input class="button2"  type="reset" value="{L_RESET}" name="reset" />
+	</fieldset>
+</form>
+<!-- End Add Account Links -->
+
+<!-- ELSE -->
+<div class="panel">
+	<div class="inner">
+		<span class="corners-top"></span>
+			<p>{L_CREATE_LINKED_ACCOUNT_EXPLAIN}</p>
+			<!-- IF ERROR --><div class="error">{ERROR}</div><!-- ENDIF -->
+			{L_NOT_MASTER}
+		<span class="corners-bottom"></span>
+	</div>
+</div>
+<!-- ENDIF -->
+
+<!-- INCLUDE ucp_footer.html -->

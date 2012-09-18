@@ -1,0 +1,104 @@
+﻿<!-- IF S_KEYWORD_VERSION -->
+<!--
+/**
+* UCP Account Link Create Template for subSilver2
+*
+* @author Michael Flenniken, Jr drakkim@conclavewiz.comm
+*
+* @version $Id: ucp_account_link_create.html 77 2012-09-02 10:48:53Z drakkim $
+* @copyright (c) 2008 Michael Flenniken, Jr
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+*/
+//-->
+<!-- ENDIF -->
+<!-- INCLUDE ucp_header.html -->
+
+<table class="tablebg" width="100%" cellspacing="1">
+<tr>
+	<th colspan="3" valign="middle">{L_CREATE_LINKED_ACCOUNT}</th>
+</tr>
+<tr>
+	<td class="row3" colspan="3"><span class="gensmall">{L_CREATE_LINKED_ACCOUNT_EXPLAIN}</span></td>
+</tr>
+<!-- IF ERROR -->
+	<tr>
+		<td class="row3" colspan="3" align="center"><span class="gensmall" style="color:red">{ERROR}</span></td>
+	</tr>
+<!-- ENDIF -->
+<!-- IF MESSAGE -->
+	<tr>
+		<td class="row3" colspan="3" align="center"><span class="gensmall" style="color:green">{MESSAGE}</span></td>
+	</tr>
+<!-- ENDIF -->
+
+<!-- IF IS_MASTER_ACCOUNT -->
+<form id="link_users" method="post" action="{U_ACTION}">
+	<!-- Create Linked Account -->
+	<tr>
+		<td class="row1">{L_MASTER_NAME}</td>
+		<td class="row2" colspan="2">{S_MASTER_NAME}<hidden name="master_name" value="{S_MASTER_NAME}"></td>
+	</tr><tr>
+		<td class="row1">{L_MASTER_PASS}</td>
+		<td class="row2" colspan="2"><input name="master_pass" class="inputbox" size="10" type="password"></td>
+	</tr><tr>
+		<td class="row1">{L_LINKED_NAME}</td>
+		<td class="row2" colspan="2"><input name="linked_name" class="inputbox" size="10"></td>
+	</tr><tr>
+		<td class="row1">{L_LINKED_PASS}</td>
+		<td class="row2" colspan="2"><input name="linked_pass" class="inputbox" size="10" type="password"></td>
+	</tr><tr>
+		<td class="row1">{L_CONFIRM_PASSWORD}</td>
+		<td class="row2" colspan="2"><input name="confirm_pass" class="inputbox" size="10" type="password"></td>
+	</tr><tr>
+				
+	<!-- BEGIN profilerow -->
+		<td class="row1"><label for="profilerow.NAME">{profilerow.LABEL}:</label></td>
+		<td class="row2"><input class="text  medium" name="profilerow.NAME" id="profilerow.NAME"></td>
+	</tr><tr>
+	<!-- END profilerow -->
+	
+	<!-- IF .groups -->
+		</table><table class="tablebg" width="100%" cellspacing="1">
+		<!-- BEGIN groups -->
+			<!-- IF groups.S_FIRST_ROW -->
+					<th colspan="2">{L_GROUP_DETAILS}</th>
+					<th>{L_SELECT}</th>
+				</tr>
+			<!-- ENDIF -->
+
+			<!-- IF groups.S_ROW_COUNT is even --><tr class="row1"><!-- ELSE --><tr class="row2"><!-- ENDIF -->
+				
+				<td colspan="2">
+					<b class="genmed"><a href="{groups.U_VIEW_GROUP}"<!-- IF groups.GROUP_COLOUR --> style="color: #{groups.GROUP_COLOUR};"<!-- ENDIF -->>{groups.GROUP_NAME}</a></b>
+					<!-- IF groups.GROUP_DESC --><br /><span class="genmed">{groups.GROUP_DESC}</span><!-- ENDIF -->
+					<!-- IF not groups.GROUP_SPECIAL --><br /><i class="gensmall">{groups.GROUP_STATUS}</i><!-- ENDIF -->
+				</td>
+				<td width="6%" align="center" nowrap="nowrap"><input type="radio" class="radio" name="main_group" value="{groups.GROUP_ID}" /></td>
+			</tr><tr>
+		<!-- END groups -->
+		</table>
+		<table class="tablebg" width="100%" cellspacing="1">
+	<!-- ENDIF -->
+	
+	
+		<td class="cat" colspan="3" align="center">
+			{S_HIDDEN_FIELDS}
+			<input class="btnmain" type="submit" name="submit" value="{L_CREATE_LINKED_ACCOUNT}" />&nbsp;&nbsp;
+			<input class="btnlite" type="reset" value="{L_RESET}" name="reset" />
+		</td>
+	</tr>
+	
+
+	<!-- End Create Linked Account -->
+</form>
+<!-- ELSE -->
+	<tr>
+		<td>
+			{L_NOT_MASTER}
+		</td>
+	</tr>
+
+<!-- ENDIF -->
+</table>
+
+<!-- INCLUDE ucp_footer.html -->

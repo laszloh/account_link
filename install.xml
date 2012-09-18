@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<!--For security purposes, please check: http
+://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.2.xsd">
+	<header>
+		<license>http://opensource.org/licenses/gpl-license.php GNU General Public License v2</license>
+		
+		<title lang="en">Linked Accounts</title>
+		<description lang="en">Links accounts so you can easily switch between them.</description>
+		<author-notes lang="en">
+			<![CDATA[
+			All the file edits are OPTIONAL. They allow you to put the drop-down to change accounts in the templates. Otherwise, you can still switch accounts from the UCP or MCP module.
+			
+			The MCP "Moderate Account Links" is VERY much test code, and I do not recommend that you install it in a live forum.
+			At the moment, there is nothing keeping a moderator with user admin privs from linking to a founder account and taking over.
+			
+			A number of problems related to this mod seem to come from incorrect cookie settings. If the mod looks like everything should work, but switching users only logs you out, check your cookie settings. 
+			
+			Many thanks to Greg Effland (geeffland from cbconnector.com) for the function that made this mod possible.
+			I also would like to thank all the people who have tested and complained along the way... Without you it would be progresing ;-)
+			
+			If you would like to contribute to the development of this mod, you can send donations to drakkim@conclavewiz.com via paypal or use the 'Donate' button on my site (http://conclavewiz.com). I don't expect everyone to hop up and donate... but someone mentioned it and I'm not one to hold back from that which is freely given ;-)
+			]]>
+		</author-notes>
+
+		<author-group>
+			<author>
+				<realname>Michael Flenniken, Jr.</realname>
+				<email>drakkim@conclavewiz.com</email>
+				<username>Drakkim</username>
+				<homepage>http://conclavewiz.com</homepage>
+			</author>
+		</author-group>
+		
+		<mod-version>0.7.9</mod-version>
+		
+		<installation>
+			<level>easy</level>
+			<time>300</time>
+			<target-version>3.0.9</target-version>
+		</installation>
+		
+		<history>
+			<entry>
+				<date>2007-08-20</date>
+				<rev-version>0.5.0</rev-version>
+				<changelog lang="en">
+					<change>Initial Release</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2007-08-27</date>
+				<rev-version>0.5.1</rev-version>
+				<changelog lang="en">
+					<change>Replaced some development code that made it into the 0.5.0 package</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2007-08-27</date>
+				<rev-version>0.5.2</rev-version>
+				<changelog lang="en">
+					<change>Fixed account_switch_form function - It was not using the language file to create the form button</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2007-10-28</date>
+				<rev-version>0.5.3</rev-version>
+					<changelog lang="en">
+					<change>Update password checks to use phpbb_hash_check (for phpBB 3.0 RC7)</change>
+					<change>Change all sql_update_limit to sql_update for pgSQL compatibility. The queries should all be specific enough to not need the limit (but the extra load sucks :-/ ) (Thanks mhorst)</change>
+					<change>Fixed autologin cookie issues (Thanks mhorst)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2007-11-26</date>
+				<rev-version>0.5.4</rev-version>
+				<changelog lang="en">
+					<change>updated forms to use $phpbb_root_path instead of assuming a path of './' (broke one of my own wrapper)</change>
+					<change>Corrected a couple typos in the code (Thanks iamgregg)</change>
+					<change>Change Account Switch Form to use a template. (TheMiNd)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2008-06-04</date>
+				<rev-version>0.5.5</rev-version>
+				<changelog lang="en">
+					<change>Update to phpBB 3.0.1 and MODX 1.2.0</change>
+					<change>[Cleanup] Removed function account_switch_form (Not used since 0.5.3)</change>
+					<change>[Bug Fix] Set variables to prevent 'unset' warnings in functions_linked_acct.php (Thanks Scriptmaster10)</change>
+					<change>[Bug Fix] Removed quotes in SQL (Thanks Frug)</change>
+					<change>[Bug Fix] Can't link users with single quotes (') in name (Thanks MydnyteSyn)</change>
+					<change>[Bug Fix] Can't link users with non-english characters in name (Thanks 'Christa)</change>
+					<change>Added UCP module install instructions to MODX</change>
+					<change>Added 'documentation' comments and headers</change>
+					<change>Fixed several errors in root/styles/prosilver/template/ucp_linked_acct.html</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2008-10-5</date>
+				<rev-version>0.7.0</rev-version>
+				<changelog lang="en">
+					<change>Update to phpBB 3.0.2 and MODX 1.2.1</change>
+					<change>Simplify edits</change>
+					<change>Rename files, functions, and variables for consistancy</change>
+					<change>[Bug Fix] /styles/prosilver/template/account_link_form.html was missing (Thanks 'Christa)</change>
+					<change>[New] Moderators can link accounts (incomplete) (Thanks Rotsblok)</change>
+					<change>[Request] Redirect back to page after switch (Natural-Hazard)</change>
+					<change>[Request] Added MCP module (Thanks Rotsblok)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2009-1-2</date>
+				<rev-version>0.7.1</rev-version>
+				<changelog lang="en">
+					<change>Update to phpBB 3.0.3 and MODX 1.2.1</change>
+					<change>Fix ModX for files added in 0.7.0</change>
+					<change>[Request] Add en-us language file (Popeston)</change>
+					<change>[bug fix] Blank pages / Errors if no users are linked (Thanks Valace and WDaquell)</change>
+					<change>[bug fix] Only variables can be passed by reference (Thanks WDaquell)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2009-1-29</date>
+				<rev-version>0.7.2</rev-version>
+				<changelog lang="en">
+					<change>[Bug Fix] Clear autologin cookie before switching users (Thanks Khamosh-Saya and Arkos)</change>
+					<change>[Bug Fix] Check for submit buttons doesn't work with accented characters (Thanks Arkos)</change>
+					<change>[New Feature] Added French Language (Thanks 'Christa)</change>
+					<change>[Request] account_link_form.html works w/o submit button (mitthoo)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2009-2-17</date>
+				<rev-version>0.7.3</rev-version>
+				<changelog lang="en">
+					<change>Update to phpBB 3.0.4 and MODX 1.2.2</change>
+					<change>Renamed instructions to install.xml (per MODX instructions)</change>
+					<change>Added 'ACCOUNTS_NOT_LINKED' to english language file (Need updates for other languages)</change>
+					<change>Fixed error message when trying to switch to an account not linked to the current one.</change>					
+					<change>[Bug Fix] account_link_form.html REALLY works w/o submit button (Thanks Natural-Hazard)</change>
+					<change>[Bug Fix] subsilver2's ucp_account_link.html had an extra field that did nothing...</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2009-2-19</date>
+				<rev-version>0.7.3a</rev-version>
+				<changelog lang="en">
+					<change>[Bug Fix] Can't switch to first account in list (Thanks Natural-Hazard)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2011-04-09</date>
+				<rev-version>0.7.4</rev-version>
+				<changelog lang="en">
+					<change>Moved downloads to sourceforge.net</change>
+					<change>Tweaked package to better work with Automod</change>
+					<change>[Feature] Added 'create linked account'</change>
+					<change>[Feature] Added code for checking PMs from linked accounts (not in template yet)</change>
+					<change>[Bug Fix] Linked accounts no longer require activation (in 0.7.3a this caused a problem for Admin Activated boards)</change>
+					<change>[Feature] Can now link/unlink accounts for other users from MCP (Requires admin users permission)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2011-09-06</date>
+				<rev-version>0.7.5</rev-version>
+				<changelog lang="en">
+					<change>[Bug Fix] Switch account didn't work in 3.0.6 if cookie settings were wrong.</change>
+					<change>[Bug Fix] Removed file extension from language in account_links_install.php. (thanks christopph34r)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2011-10-07</date>
+				<rev-version>0.7.6</rev-version>
+				<changelog lang="en">
+					<change>[Bug fix] Removed a stray semi-colon in en and en-us language files. (Thanks Namor76 and Z.R.)</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2011-10-20</date>
+				<rev-version>0.7.7</rev-version>
+				<changelog lang="en">
+					<change>[Update] Updated install.xml for prosilver template changes.</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2011-10-22</date>
+				<rev-version>0.7.8</rev-version>
+				<changelog lang="en">
+					<change>[Bug Fix] Incorrect variable for add_log() in ucp_account_link.php</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2012-09-02</date>
+				<rev-version>0.7.9</rev-version>
+				<changelog lang="en">
+					<change>[Bug Fix] Converted language files to UTF-8 without BOM</change>
+					<change>[Bug Fix] Made UCP/MCP install files translatable</change>
+					<change>[Bug Fix] Fixed problems in install.xml</change>
+					<change>[Feature] Added German language files</change>
+					<change>[Feature] Added logging to MCP module</change>
+					<change>[Cleanup] moved language files to /contrib</change>
+					<change>[Cleanup] Cleaned up all template files</change>
+				</changelog>
+			</entry>
+		</history>
+		
+	</header>
+	
+	<action-group>
+		<sql><![CDATA[ALTER TABLE phpbb_users ADD master_id MEDIUMINT( 8 ) UNSIGNED DEFAULT 0;]]></sql>
+
+		<copy>
+			<file from="root/includes/functions_account_link.php" to="includes/functions_account_link.php" />
+			<file from="root/includes/account_link_cfg.php" to="includes/account_link_cfg.php" />
+			<file from="root/includes/ucp/ucp_account_link.php" to="includes/ucp/ucp_account_link.php" />
+			<file from="root/includes/ucp/info/ucp_account_link.php" to="includes/ucp/info/ucp_account_link.php" />
+			<file from="root/includes/mcp/mcp_account_link.php" to="includes/mcp/mcp_account_link.php" />
+			<file from="root/includes/mcp/info/mcp_account_link.php" to="includes/mcp/info/mcp_account_link.php" />
+			<file from="root/language/en/mods/account_link.php" to="language/en/mods/account_link.php" />
+			<file from="root/styles/prosilver/template/account_link_form.html" to="styles/prosilver/template/account_link_form.html" />
+			<file from="root/styles/prosilver/template/ucp_account_link_create.html" to="styles/prosilver/template/ucp_account_link_create.html" />
+			<file from="root/styles/prosilver/template/mcp_account_link_manage.html" to="styles/prosilver/template/mcp_account_link_manage.html" />
+			<file from="root/styles/prosilver/template/mcp_account_link_moderate.html" to="styles/prosilver/template/mcp_account_link_moderate.html" />
+			<file from="root/styles/prosilver/template/ucp_account_link.html" to="styles/prosilver/template/ucp_account_link.html" />
+			<file from="root/styles/subsilver2/template/account_link_form.html" to="styles/subsilver2/template/account_link_form.html" />
+			<file from="root/styles/subsilver2/template/mcp_account_link_manage.html" to="styles/subsilver2/template/mcp_account_link_manage.html" />
+			<file from="root/styles/subsilver2/template/mcp_account_link_moderate.html" to="styles/subsilver2/template/mcp_account_link_moderate.html" />
+			<file from="root/styles/subsilver2/template/ucp_account_link.html" to="styles/subsilver2/template/ucp_account_link.html" />
+			<file from="root/styles/subsilver2/template/ucp_account_link_create.html" to="styles/subsilver2/template/ucp_account_link_create.html" />
+		</copy>
+
+		<open src="includes/functions.php">
+			<edit>
+				<find>
+	// application/xhtml+xml not used because of IE
+	header('Content-type: text/html; charset=UTF-8');
+				</find>
+				<action type="before-add">
+	// Begin Account Link Mod
+	require_once($phpbb_root_path . 'includes/functions_account_link.' . $phpEx);
+	account_link_form ();
+	// End Account Link Mod
+				</action>
+			</edit>
+		</open>
+		<open src="language/en/acp/common.php">
+			<edit>
+				<find><![CDATA[));]]></find>
+				<action type="before-add"><![CDATA[
+
+	// Account Link Mod Log Entries
+	'LOG_LINK_SUCCESS'		=> 'Linked master user \'%1$s\' to \'%2$s\'',
+	'LOG_LINK_FAILED'		=> 'Failed to link master user \'%1$s\' to \'%2$s\': %3$s',
+	'LOG_LINK_BROKEN'		=> 'Removed link from user \'%1$s\' to user(s) %2$s',]]>
+				</action>
+			</edit>
+		</open>
+		<open src="styles/prosilver/template/overall_header.html">
+			<edit>
+				<find>
+<![CDATA[{L_REGISTER}</a></li><!-- ENDIF -->]]>
+				</find>
+				<action type="after-add"><![CDATA[					<li><!-- INCLUDE account_link_form.html --></li>]]></action>
+			</edit>
+		</open>
+		<open src="styles/subsilver2/template/overall_header.html">
+			<edit>
+				<find>
+<![CDATA[									<!-- IF not S_IS_BOT --><a href="{U_LOGIN_LOGOUT}"><img src="{T_THEME_PATH}/images/icon_mini_login.gif" width="12" height="13" alt="*" /> {L_LOGIN_LOGOUT}</a>&nbsp;<!-- ENDIF -->]]>
+				</find>
+				<action type="after-add"><![CDATA[<!-- INCLUDE account_link_form.html -->]]></action>
+			</edit>
+		</open>
+		<diy-instructions lang="en"><![CDATA[
+Open "overall_header.html" for each style you use and add this line where you want the account switch box to be (prodilver and subsilver shouls be done):
+	<!-- INCLUDE account_link_form.html -->
+
+If you want users to be able to create accounts with the same email address:
+1. Go into the Admin Panel
+2. Click "User registration settings" on the left
+3. Scroll down to "Allow e-mail address re-use:" and set it to yes
+	
+Install the UCP Module
+1. Go into the Admin Panel
+2. Click the "System" tab
+3. Under "Module Management" click "User Control Panel"
+4. In the bottom right, there's a drop down with an "Add Module" button... Select "Manage Linked Accounts" (Prosilver should already be done)
+5. Click "Add Module"
+6. Click "Yes"
+7. Click "Back to previous page"
+8. Find the module in the list and click "Enable" next to it
+
+Install the MCP Modules:
+Follow the same instrictions, except "User Control Panel" is "Moderator Control Panel" and "Manage Linked Accounts" or "Moderate Linked Accounts"
+		]]></diy-instructions>
+	</action-group>
+</mod>

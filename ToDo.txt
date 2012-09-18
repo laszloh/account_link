@@ -1,0 +1,29 @@
+[REQ Natural-Hazard] Add list of linked accounts to profile (view-all?)
+
+Change UCP / MCP Manage so that it isn't necessary to switch to master account
+
+Admin/Moderator functions
+	Only link with lower or equal permissions (can't link user w/ mod, mod w/ user)	
+
+
+
+(Done 6/4/08 @ CBC 2b5a) Look into changes in CB Connector's createSessionByID
+(Done 6/4/08 @ v0.5.5) Integrate all updates from support forum
+
+Done:
+(0.5.3)	Update password check to RC7
+(0.5.4)	[REQ TheMiNd] Externalize Account Link selector for header
+(0.5.5)	[Bug] prosilver UCP Template always switches users on press Enter
+ ----- 	Separate UCP into 3 modes (Link, Unlink, Switch) (Fix prosilver bug)
+
+(0.7.0)	Redirect to last used page after switching users (If allowed?)
+(0.7.0)	rename files to *account_link*
+(0.7.0)	Moderators/Admins can link accounts
+(0.7.0)	Update subsilver_2 style
+
+(0.7.1)	Make account_switch_form.html work w/o submit button
+(0.7.2)	Credit people who helped from 0.7 to 0.7.1
+(0.7.4)	[REQ Rotsblok] made so that only admins and or mods can link accounts (install MCP, do not install UCP)
+(0.7.4)	Admins can see/change account links
+(0.7.9)	Mods can see linked accounts
+(0.7.9)	Convert all files to Unix EOL & UTF-8 no BOM

@@ -1,0 +1,124 @@
+<!-- IF S_KEYWORD_VERSION -->
+<!--
+/**
+* UCP Account Link Template for Prosilver
+*
+* @author Michael Flenniken, Jr drakkim@conclavewiz.comm
+*
+* @version $Id: ucp_account_link.html 77 2012-09-02 10:48:53Z drakkim $
+* @copyright (c) 2008 Michael Flenniken, Jr
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+*/
+//-->
+<!-- ENDIF -->
+<!-- INCLUDE ucp_header.html -->
+
+<h2>{L_ACCOUNT_LINK}</h2>
+
+<!-- Switch Accounts -->
+<!-- IF S_ACCOUNT_LINK_OPTIONS -->
+<form id="switch_user" method="post" action="{U_ACTION}">
+	<div class="panel">
+		<div class="inner">
+			<span class="corners-top"><span></span></span>
+			<p>{L_ACCOUNT_LINK_EXPLAIN}</p>
+			<!-- IF ERROR --><div class="error">{ERROR}</div><!-- ENDIF -->
+			<fieldset>
+				<dl>
+					<dt><label for="switch_acct">{L_SWITCH_USER}</label></dt>
+					<dd>
+						<select name="switch_acct">{S_ACCOUNT_LINK_OPTIONS}</select>
+					</dd>
+				</dl>
+				<input type="hidden" name="redirect" value="{U_THIS_URL}" />
+			</fieldset>
+			<span class="corners-bottom"><span></span></span>
+		</div>
+	</div>
+	<fieldset class="submit-buttons">
+		<input class="button1" type="submit" name="submit" value="{L_SWITCH_USER}" />
+	</fieldset>
+</form>	
+<!-- ELSE -->
+<div class="panel">
+	<div class="inner">
+		<span class="corners-top"></span>
+			{L_NO_ACCOUNTS_LINKED}
+		<span class="corners-bottom"></span>
+	</div>
+</div>
+<!-- ENDIF -->
+<!-- End Switch Accounts -->
+
+<!-- IF IS_MASTER_ACCOUNT -->
+<!-- Add Account Links -->
+<form id="link_users" method="post" action="{U_ACTION}">
+	<div class="panel">
+		<div class="inner">
+			<span class="corners-top"><span></span></span>
+			<fieldset>
+				<dl>
+					<dt><label for="master_name">{L_MASTER_NAME}:</label></dt>
+					<!-- IF S_MASTER_NAME -->
+					<dd>{S_MASTER_NAME}<hidden name="master_name" value="{S_MASTER_NAME}" /></dd>
+					<!-- ELSE -->
+					<dd><input class="text medium" type="text" name="master_user"></dd>
+					<!-- ENDIF -->
+				</dl><dl>
+					<dt><label for="master_pass">{L_MASTER_PASS}:</label></dt>
+					<dd><input class="text medium" name="master_pass" type="password"></dd>
+				</dl><dl>
+					<dt><label for="linked_name">{L_LINKED_NAME}:</label></dt>
+					<dd><input class="text medium" type="text" name="linked_name"></dd>
+				</dl><dl>
+					<dt><label for="linked_pass">{L_LINKED_PASS}:</label></dt>
+					<dd><input class="text medium" name="linked_pass" type="password"></dd>
+				</dl>
+				{S_HIDDEN_FIELDS}
+			</fieldset>
+			<span class="corners-bottom"><span></span></span>
+		</div>
+	</div>
+	<fieldset class="submit-buttons">
+		<input class="button1" type="submit" name="submit" value="{L_LINK_USERS}" />&nbsp;&nbsp;
+		<input class="button2" type="reset" name="reset" value="{L_RESET}" />
+	</fieldset>
+</form>
+<!-- End Add Account Links -->
+
+	<!-- IF S_ACCOUNT_LINK_OPTIONS -->
+<!-- Remove Account Links -->
+<form id="unlink_users" method="post" action="{U_ACTION}">
+	<div class="panel">
+		<div class="inner">
+			<span class="corners-top"><span></span></span>
+			<fieldset>
+				<dl>
+					<dt><label for="usernames[]">{L_LINKED_ACCOUNTS}</label></dt>
+					<dd>
+					<select name="usernames[]" multiple="multiple" size="5">{S_ACCOUNT_LINK_OPTIONS}</select>
+					</dd>
+				</dl>	
+				{S_HIDDEN_FIELDS}
+			</fieldset>
+			<span class="corners-bottom"><span></span></span>
+		</div>
+	</div>
+	<fieldset class="submit-buttons">
+		<input class="button1" type="submit" name="submit" value="{L_UNLINK_USERS}" />
+	</fieldset>
+</form>
+<!-- End Remove Account Links -->
+	<!-- ENDIF -->
+
+<!-- ELSE -->
+<div class="panel">
+	<div class="inner">
+		<span class="corners-top"></span>
+			{L_NOT_MASTER}
+		<span class="corners-bottom"></span>
+	</div>
+</div>
+<!-- ENDIF -->
+
+<!-- INCLUDE ucp_footer.html -->
