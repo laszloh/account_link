@@ -12,7 +12,24 @@
 /**
 * @ignore
 */
-defined( 'IN_PHPBB' ) or die('Hacking Attempt!');
+if (!defined('IN_PHPBB'))
+{
+	exit;
+}
+
+// The main class
+class alink 
+{
+
+	/**
+	 * Initializes the alink class, fetches the configuration and set's up the 
+	 * langaue files for the account link modul
+	 */
+	function alink()
+	{
+		$user->add_lang('mod/account_link');
+	}
+}
 
 /**
 * Get Account Link config
