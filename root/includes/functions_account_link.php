@@ -29,6 +29,256 @@ class alink
 	{
 		$user->add_lang('mod/account_link');
 	}
+	
+	/**
+	 * Fills out the template variable with the linked account informations.
+	 * 
+	 * @param $user_id	The user id to be queried. If 0 the current user will be taken
+	 */
+	function get_linked_accounts_tmplt ($user_id = 0)
+	{
+		global $user, $phpbb_root_path, $phpEx, $template;
+		
+		$linked_accts = $this->get_linked_accounts($user_id);		
+		$user_id = ($user_id == 0) ? $user->data['user_id'] : $user_id;
+		
+		$new_mails = $unread_mails = 0;
+		foreach($linked_accts as $linked)
+		{
+			if ($linked['user_id'] != $user_id)
+			{
+				$template->assign_block_vars('linked', array(
+					'USER_ID'		=> $linked['user_id'],
+					'USERNAME'		=> $linked['username_clean'],
+					'USER_NAME'		=> get_username_string('no_profile', $linked['user_id'], $linked['username'], $linked['user_colour']),
+					'USER_PROFILE'	=> get_username_string('full', $linked['user_id'], $linked['username'], $linked['user_colour']),,
+					
+					'NEW_PM'		=> $linked['user_new_privmsg'],
+					'UNREAD_PM'		=> $linked['user_unread_privmsg'],
+					
+					'FORM_NAME'		=> 'userid_' . $linked['user_id'],
+					'HIDDEN_FIELDS'	=> build_hidden_fields(array(
+						'submit' 		=> 'switch',
+						'switch_acct'	=> $linked['user_id'],
+						'redirect'		=> build_url(),
+						)),
+				));
+			}
+			$new_mails += $linked['user_new_privmsg'];
+			$unread_mails += $linked['user_unread_privmsg'],
+		}
+		
+		$template->assign_vars(array(
+			'ALINK_NEW_MAILS'				=> $new_mails,
+			'ALINK_UNREAD_MAILS'			=> $unread_mails,
+			
+			'U_ACCOUNT_LINK_SEND_TO'	=> append_sid($phpbb_root_path ."ucp.$phpEx?i=account_link"),
+		) );
+	}
+	
+	/**
+	 * Retrieve all linked account rows for $user_id
+	 *
+	 * @param $user_id	The user id to be queried. If 0 the current user will be taken
+	 * @return an array containing the user rows of all linked accounts, including the queried account
+	 */
+	function get_linked_accounts ($user_id = 0)
+	{
+		global $db, $user, $auth;
+
+		if ($user->data['user_id'] == ANONYMOUS && $user_id == 0)
+		{
+			return array();
+		}
+
+		$user_id = ($user_id == 0) ? $user->data['user_id'] : $user_id;
+		$master_id = $this->get_master_account($user_id);
+
+		$sql_array = array(
+			'SELECT'	=> 'u.*',
+			'FROM'		=> USERS_TABLE . ' AS u',
+			'WHERE'		=> '(user_id = ' . $user_id . ')
+							OR (master_id = ' . $master_id : ')',
+			);
+
+		// Look up all users with user_id or master_id matching $user_id or $master_id
+		if ($master_id != 0)
+		{
+			$sql_array['WHERE'] .= ' OR (user_id = '. $master_id .')
+							   OR (master_id = '. $master_id .')';
+		}
+		
+		$result = $db->sql_query($db->sql_build_query('SELECT', $sql_array));
+		$linked_accounts = $db->fetchrowset($result);
+		$db->sql_freeresult($result);
+		
+		return $linked_accounts;
+	}
+	
+	/*
+	 * Returns the user_id of the master account
+	 * 
+	 * @param $user_id	The id of the user to be queried. If 0 the current user will be used
+	 * @return The queried user id of the master account
+	 */
+	function get_master_account ($user_id = 0)
+	{
+		global $db, $user;
+		
+		if ($user_id == 0)
+		{
+			if ($user->data['user_id'] == ANONYMOUS)
+			{
+				return false;
+			}
+			$user_id = $user->data['user_id'];
+			$master_id = $user->data['master_id'];
+		}
+		else
+		{
+			// Look up master_id from USER_TABLE
+			$sql = 'SELECT master_id
+				FROM ' . USERS_TABLE . '
+				WHERE (user_id = '. $user_id .')';
+					
+			$result = $db->sql_query($sql);
+			$row = $db->sql_fetchrow($result);
+			$db->sql_freeresult($result);
+			
+			$master_id = (int) $row['master_id'];
+		}
+		
+		return ($master_id == 0) ? $user_id : $master_id;
+	}
+	
+	/**
+	* Start a new session by user_id
+	* Based heavily on CB Connector by geeffland (http://cbconnector.com)
+	*
+	* @param $new_id	the id of the new user
+	* $persist_login	if true, the login'll be persistent
+	* @return false if the session creation failed, true otherwise
+	*/
+	function _start_session_by_id ($new_id, $persist_login) 
+	{
+		global $user, $auth;
+		
+		$user->session_begin();
+		$auth->acl($user->data);
+		$user->setup();	//'ucp'
+		$admin = false;
+		$viewonline = true;
+		$user->cookie_data['k'] = '';
+		$result = $user->session_create($new_id, $admin, $persist_login, $viewonline);
+		
+		return $result;
+	}
+	
+	/**
+	* Links accounts by username without validation.
+	* Actually wraps link_accounts()
+	* 
+	* @warning No Validation
+	* @deprecated
+	*
+	* @param $master_username	The username of the master account
+	* @param $linked_username	The username of the account to be linked
+
+	*/
+	function link_accounts_by_name ($master_username = false, $linked_username = false)
+	{
+		if($master_username === false || $linked_username === false)
+		{
+			return false;
+		}
+	
+		$user_id_ary = array();
+		$username_ary = array (utf8_clean_string($master_username), utf8_clean_string($linked_username));
+		user_get_id_name ($user_id_ary, $username_ary);
+		$master_id = $user_id_ary[0];
+		$linked_id = $user_id_ary[1];
+
+		return $this->_link_accounts($master_id, $linked_id);
+	}
+	
+	/**
+	* Links the accounts together without validation by setting the 
+	* 'master_id' for user with 'user_id' = $linked_id.
+	*
+	* @warning No Validation
+	*
+	* @param $master_id	The user_id of the master account
+	* @param $linked_id	The id of the account to be linked
+	*/
+	function _link_accounts($master_id = 0, $linked_id = 0)
+	{
+		global $db;
+		
+		if($master_id == 0 || $linked_id == 0)
+		{
+			return false;
+		}
+
+		$sql = 'UPDATE '. USERS_TABLE 
+				.' SET master_id = '. $master_id 
+				.' WHERE user_id = '. $linked_id;
+				
+		// Need to check for errors....
+		$db->sql_query($sql);
+		return true;
+	}
+	
+	/**
+	* Break the Account Link between two linked accounts. Takes into 
+	* consideration the case, when the master account is unlinked. If this 
+	* happens, the current user account becomes the master account.
+	*
+	* @param $link_id	the user_id of the linked account
+	* @param $master_id	the id of the master account
+	*/
+	function _unlink_accounts ($link_id = 0, $master_id = 0)
+	{
+		global $db, $user;
+		
+		if($link_id == 0 || $master_id == 0)
+		{
+			return false;
+		}
+		
+		$sql = 'SELECT user_id, master_id 
+			FROM ' . USERS_TABLE . ' 
+			WHERE user_id = ' . $link_id;
+		$result = $db->sql_query($sql);
+		$link_user = $db->sql_fetchrow($result);
+		$db->sql_freeresult($result);
+
+		if($link_user['user_id'] == $master_id)
+		{
+			// this account will become the master account, so update all linked accounts with the new master_id
+			$sql = 'UPDATE ' . USERS_TABLE . ' 
+				SET master_id = ' . $user->data['user_id'] . ' 
+				WHERE master_id = ' . $master_id;
+			$db->sql_query($sql);
+			
+			// delete master_id so it shows as an account master
+			$sql = 'UPDATE '. USERS_TABLE .'
+					SET master_id = 0
+					WHERE user_id = '. $user->data['user_id'];
+		}
+		else
+		{
+			// remove account from link
+			$sql = 'UPDATE '. USERS_TABLE .'
+					SET master_id = 0
+					WHERE user_id = '. link_user['user_id'];
+		}
+		
+		$db->sql_query($sql);
+		return true;
+	}
+	
+	
+	
 }
 
 /**
@@ -42,185 +292,8 @@ function account_link_config()
 	
 	return $account_link_config;
 }
-/**
-* Initialize the Linked Account drop down box
-* Sets up template variables for linked_acct.html template
-*/
-function account_link_form ()
-{
-//	global $user;
-	global $user, $phpbb_root_path, $phpEx, $template;
-	
-	$redirect = request_var('redirect',$phpbb_root_path);
-	$send_to = append_sid($phpbb_root_path ."ucp.$phpEx?i=account_link");
-	
-	// Make sure user->setup() has been called
-	if (empty($user->lang))
-	{
-		$user->setup();
-	}
-	$user->add_lang('mods/account_link');
-
-	$s_account_link_options ='';
-
-	if ($user->data['user_id'] != 1 )
-	{
-		$linked_accts = get_linked_accounts();
-		if (count($linked_accts) > 0) {
-			foreach($linked_accts as $key => $value)
-			{
-				if ($key != $user->data['user_id'])
-				{
-					$s_account_link_options .= '<option value="' . $key . '">' . $value . '</option>';
-				}
-			}
-		}
-	}
-	
-	$template->assign_vars(array(
-		'U_ACCOUNT_LINK_SEND_TO'	=> $send_to,
-		'S_ACCOUNT_LINK_OPTIONS'	=> $s_account_link_options,
-		'U_THIS_URL'				=> $_SERVER['REQUEST_URI'],
-	) );
-}
-
-/**
-* Retrieve linked accounts for $user_id
-*/
-function get_linked_accounts ($user_id = 0)
-{
-	global $db, $user, $auth;
-	
-	// Declare variables to prevent injection
-	$master_id=0;
-	$sql_where='';
-
-	if ($user_id==0)
-	{
-		if ($user->data['user_id'] == 1)
-		{
-			return false;
-		}
-		$user_id = $user->data['user_id'];
-		$master_id = $user->data['master_id'];
-	}
-	else
-	{
-		$master_account = get_master_account($user_id);
-		
-		
-		$master_id = $master_account['id'];
-		$master_username = $master_account['username'];
-	}
-
-	// Look up all users with user_id or master_id matching $user_id or $master_id
-	if ($master_id != 0)
-	{
-		$sql_where = 'OR (user_id = '. $master_id .')
-					 OR (master_id = '. $master_id .')';
-	}
-
-	$sql = 'SELECT user_id, master_id, username
-		FROM ' . USERS_TABLE . '
-		WHERE (user_id = '. $user_id .')
-		OR (master_id = '. $user_id .')
-		' . $sql_where;
-	
-	$result = $db->sql_query($sql);
-
-	$linked_accounts = array();
-	while( ($row = $db->sql_fetchrow($result)) )
-	{
-		$linked_accounts[$row['user_id'] ] = $row['username'];
-	}
-	return $linked_accounts;
-}
-
-function get_master_account ($user_id = 0)
-{
-	global $db, $user;
-	
-	if ($user_id==0)
-	{
-		if ($user->data['user_id'] == 1)
-		{
-			return false;
-		}
-		$user_id = $user->data['user_id'];
-		$master_id = $user->data['master_id'];
-		$username = $user->data['username'];
-	}
-	else
-	{
-		// Look up master_id from USER_TABLE
-		$sql = 'SELECT master_id, username
-				FROM ' . USERS_TABLE . '
-				WHERE (user_id = '. $user_id .')';
-				
-		$result = $db->sql_query($sql);
-		$row = $db->sql_fetchrow($result);
-	
-		(int) $master_id = $row['master_id'];
-		$username = $row['username'];
-	}
-	
-	if ($master_id == 0)
-	{
-		return array(
-			'id'		=> $user_id,
-			'username'	=> $username
-		);
-	}
-	else
-	{
-		$sql = 'SELECT user_id, username
-			FROM ' . USERS_TABLE . '
-			WHERE (user_id = '. $master_id .')';
-		
-		$result = $db->sql_query($sql);
-		$row = $db->sql_fetchrow($result);
-		
-		$master_username = $row['username'];
-		
-//		$master_account= array(
-//			'id'		=> $master_id,
-//			'username'	=> $master_username
-//		);
-	}
-	
-	//return $master_account;
-	return array(
-		'id'		=> $master_id,
-		'username'	=> $master_username
-	);	
-	
-}
 
 
-/**
-* Start a new session by user_id
-* Returns false if the requested id is not linked to the current account
-* Based heavily on CB Connector by geeffland (http://cbconnector.com)
-*/
-function _start_session_by_id ($forumid, $persist_login) {
-//	global $phpEx, $SID, $_SID, $db, $cache, $config, $phpbb_root_path;
-	global $_SID;
-	global $user, $auth;
-	
-	$user->session_begin();
-	$auth->acl($user->data);
-	$user->setup();	//'ucp'
-	$old_session_id = $user->session_id;
-	$admin = false;
-	$viewonline = true;
-	$user->cookie_data['k'] = '';
-	$result = $user->session_create($forumid, $admin, $persist_login, $viewonline);
-	//$phppBBsessionID = $_SID;
-	//return $phppBBsessionID;
-	
-	return $result;
-	//return $_SID;
-}
 	
 /**
 * Switch Users
@@ -348,60 +421,6 @@ function link_account_validate ($master_username, $master_pass, $linked_username
 	} else {
 		return implode('<br>', $error);
 	}
-}
-
-/**
-* Links accounts by username without validation
-* Actually wraps link_accounts()
-* *No Validation
-* @dereciated
-*/
-function link_accounts_by_name ($master_username, $linked_username)
-{
-	$user_id_ary=array();
-	$username_ary=array ($master_username, $linked_username);
-	user_get_id_name ($user_id_ary, $username_ary);
-	$master_id = $user_id_ary[0];
-	$linked_id = $user_id_ary[1];
-
-	return link_accounts($master_id, $linked_id);
-} /* */
-
-/**
-* links the accounts together without validation
-* (Sets 'master_id' for user with 'user_id' = $linked_id)
-* *No Validation
-* @todo: check for errors
-*/
-function link_accounts($master_id, $linked_id)
-{
-	global $db;
-
-	$sql = 'UPDATE '. USERS_TABLE 
-			.' SET master_id = '. $master_id 
-			.' WHERE user_id = '. $linked_id;
-			
-	// Need to check for errors....
-	$result = $db->sql_query($sql);
-	return true;
-}
-
-/**
-* Break the Account Links
-* *No Validation
-* (Sets 'master_id' to 0)
-*/
-function unlink_accounts ($user_id)
-{
-	global $db;
-
-	$sql = 'UPDATE '. USERS_TABLE .'
-			SET master_id = 0
-			WHERE user_id = '. $user_id;
-			
-//	echo "un-Linking accounts!!";
-	$result = $db->sql_query($sql);
-	return true;
 }
 
 /**
