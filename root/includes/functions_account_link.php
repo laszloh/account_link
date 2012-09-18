@@ -277,7 +277,46 @@ class alink
 		return true;
 	}
 	
+	/**
+	 * Checks if two accounts are linked together
+	 *
+	 * @param $user_id	The first user id. If 0 the current user will be taken
+	 * @param $test_id	The id of the second user. Can <b>not</b> be 0
+	 * @return true if the two accounts are linked, false otherwise
+	 */
+	function is_account_linked($user_id = 0, $test_id = 0)
+	{
+		$user_id = ($user_id == 0) ? $user->data['user_id'] : $user_id;
+		
+		if ($user_id == ANONYMOUS || $test_id == 0)
+		{
+			return false;
+		}
+		
+		$accounts = $this->get_linked_accounts($user_id);
+		foreach($account as i => $linked)
+		{
+			// test if we found the value
+			if($linked['user_id'] == $test_id)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	
+	/**
+	 * Synchronize the uread forum/topic marks of two users
+	 * Not a basic funtion, it will test, if users are linked together, 
+	 * before executing the synchronization
+	 *
+	 * @param $dest_user	user_id of the user, which should be overwritten
+	 * @param $source_user	user_id of the user supplying the data
+	 */
+	function sync_unread_topics($dest_user = 0, $source_user = 0)
+	{
+		// not implemented
+	}
 	
 }
 
