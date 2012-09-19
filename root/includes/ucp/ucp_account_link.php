@@ -13,11 +13,10 @@
 /**
 * @ignore
 */
-defined( 'IN_PHPBB' ) or die('Hacking Attempt!');
-
-/**
-*/
-require_once($phpbb_root_path . 'includes/functions_account_link.' . $phpEx);
+if (!defined('IN_PHPBB'))
+{
+	exit;
+}
 
 /**
 * @package ucp
@@ -29,15 +28,12 @@ class ucp_account_link
 	function main($id, $mode)
 	{
 		global $user, $template, $phpbb_root_path, $phpEx, $db;
-		global $account_link_config;
-		
-		if (empty($account_link_config))
-		{
-			$account_link_config = account_link_config();
-		}
+		global $alink;
 		
 		$user->add_lang('mods/account_link');
-		$submit = request_var('submit','', true);
+		
+		$submit = request_var('submit', false);
+		$action = request_var('action', '', true);
 		
 		$u_redirect = request_var('redirect', "{$phpbb_root_path}index.$phpEx");
 		$l_redirect = ($u_redirect === ("{$phpbb_root_path}index.$phpEx" || $u_redirect === "index.$phpEx")) ? $user->lang['RETURN_INDEX'] : $user->lang['RETURN_PAGE'];
@@ -46,59 +42,163 @@ class ucp_account_link
 		$u_redirect = reapply_sid($u_redirect);
 		$redirect = '<br /><br />' . sprintf($l_redirect, '<a href="' . $u_redirect . '">', '</a>');
 		
-		$s_hidden_fields = '';
 		$error='';
-//		$error = request_var('error','');
-		
-		switch ($mode)
-		{
-			case 'manage':
-				$this->page_title = 'Manage Linked Accounts';
-				$this->tpl_name = 'ucp_account_link';
-				break;
-			case 'create_join':
-				get_all_groups();
-			case 'create':
-				if ($account_link_config['group_enabled'])
-				{
-					get_all_groups();
-				}
-				$this->page_title = 'Create Linked Account';
-				$this->tpl_name = 'ucp_account_link_create';
-				break;
-		}
 		
 		// Always need this
 		if ($user->data['master_id'] != 0)
 		{
-			$is_master=false;
+			$is_master = false;
 			
 			$sql = 'SELECT username
 			FROM ' . USERS_TABLE . '
 				WHERE user_id = '. $user->data['master_id'];
 			
 			$result = $db->sql_query($sql);
-			$row = $db->sql_fetchrow($result);
-			
-			$master_name = $row['username'];
-			//$error=$user->lang['NOT_MASTER'];
+			$master_name = $db->sql_fetchfield('username');
+			$db->sql_freeresult($result);
 		}
 		else
 		{
 			$master_name = $user->data['username'];
-			$is_master=true;
+			$is_master = true;
 		}
+		
+		switch ($mode)
+		{
+			case 'manage':
+				$this->page_title = $user->lang['MANAGE_LINKED_ACCOUNTS'];
+				$this->tpl_name = 'ucp_alink_manage';
+				
+				if($submit)
+				{
+					switch($action)
+					{
+						case 'link':
+							$master_pass = request_var('master_pass', '', true);
+							$linked_name = request_var('linked_name', '', true);
+							$linked_pass = request_var('linked_pass', '', true);
+							
+							$result = $alink->link_account_validate ($master_name, $master_pass, $linked_name, $linked_pass);
+						
+							if ($result === true)
+							{
+								add_log('user', 'LOG_LINK_SUCCESS', $master_name, $linked_name);
+								$message = $user->lang['LINK_SUCCESS'];
+							}
+							else
+							{
+								$error = $result;
+								add_log('user', 'LOG_LINK_FAILED', $master_name, $linked_name, $error);
+							}
+							break;
+
+						case 'unlink':
+							$user_id = request_var('uid', 0);
+							user_get_id_name(array($user_id), $username_ary);
+
+							// confirm the unlink
+							if(confirm_box(true))
+							{
+								// test if accounts are linked
+								if(!$alink->is_account_linked($user->data['user_id'], $unlink_id))
+								{
+									$error = $user->lang['ACCOUNT_UNLINK_FAILED'];
+									add_log('user', 'LOG_ACCOUNT_UNLINK_FAILED', $master_name, implode(' ', $username_ary));
+									// hammer time!
+									trigger_error($error);
+								}
+							
+								// do the unlink
+								$alink->unlink_accounts($user->data['user_id'], $unlink_id);
+								$message = $user->lang['LINK_BROKEN'];
+								add_log ('user', $user->data['user_id'], 'LOG_LINK_BROKEN', $master_name, implode(' ', $username_ary));
+							}
+							else
+							{
+								confirm_box(false, sprintf($user->lang['CONFIRM_ACCOUNT_UNLINK', implode(', ', $username_ary)), build_hidden_fields(array(
+									'mode'		=> 'manage',
+									'action'	=> 'unlink',
+									'submit'	=> true,
+									'uid'		=> $user_id,
+									)));
+							}
+						
+							break;
+					}
+				}
+				
+				break;
+				
+			case 'switch':
+				$this->page_title = $user->lang['SWITCH_LINKED_ACCOUNTS'];
+				$this->tpl_name = 'ucp_alink_switch';
+
+				$new_id = request_var('switch_acct', 0);
+				$redirect = request_var('redirect', $phpbb_root_path);
+				
+				if ($submit)
+				{
+					// test if account is linked
+					if(!$alink->$alink->is_account_linked($user->data['user_id'], $new_id))
+					{
+						user_get_id_name(array($new_id), $username_ary);
+					
+						$error = $user->lang['ACCOUNT_NOT_LINKED'];
+						add_log('user', 'LOG_ACCOUNT_NOT_LINKED', $user->data['username'], implode(' ', $username_ary));
+						// hammer time!
+						trigger_error($error);
+					}
+				
+					// we are switching accounts
+					switch_user($new_id);
+				}
+				break;
+
+			case 'config':
+				$this->page_title = $user->lang['CONFIG_LINKED_ACCOUNTS'];
+				$this->tpl_name = 'ucp_alink_config';
+				
+				// get settings
+				
+				if($submit)
+				{
+					// save settings
+				}
+			break;
+			
+			case 'create':
+				if(!$user->acl_get('u_alink_create'))
+				{
+					$error = $user->lang['ALINK_CREATE_FAILED'];
+					add_log('user', 'LOG_ALINK_CREATE_FAILED', $master_name);
+					// hammer time!
+					trigger_error($error);
+				}
+				$this->page_title = 'Create Linked Account';
+				$this->tpl_name = 'ucp_alink_create';
+				
+				// not implemented
+				$error = $user->lang['ACCOUNT_CREATE_MISSING'];
+				add_log('user', 'LOG_ACCOUNT_CREATE_MISSING', $user->data['username'], implode(' ', $username_ary));
+				// hammer time!
+				trigger_error($error);
+				
+				break;
+		}
+		
+		// fill up the global template variable
 		
 		if ($submit != '')
 		{
 			switch ($submit)
 			{
-				case $user->lang['SWITCH_USER']:
-					$forumid = request_var('switch_acct', 0);
+				case 'switch':
+					$new_id = request_var('switch_acct', 0);
 					$redirect = request_var('redirect', $phpbb_root_path);
 					
-					switch_user($forumid);
+					switch_user($new_id);
 				break;
+				
 				case $user->lang['LINK_USERS']:
 					if (empty($error))
 					{

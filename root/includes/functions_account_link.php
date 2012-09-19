@@ -58,9 +58,9 @@ class alink
 					
 					'FORM_NAME'		=> 'userid_' . $linked['user_id'],
 					'HIDDEN_FIELDS'	=> build_hidden_fields(array(
-						'submit' 		=> 'switch',
-						'switch_acct'	=> $linked['user_id'],
-						'redirect'		=> build_url(),
+						'submit' 	=> 'switch',
+						'switch_id'	=> $linked['user_id'],
+						'redirect'	=> build_url(),
 						)),
 				));
 			}
@@ -152,29 +152,6 @@ class alink
 	}
 	
 	/**
-	* Start a new session by user_id
-	* Based heavily on CB Connector by geeffland (http://cbconnector.com)
-	*
-	* @param $new_id	the id of the new user
-	* $persist_login	if true, the login'll be persistent
-	* @return false if the session creation failed, true otherwise
-	*/
-	function _start_session_by_id ($new_id, $persist_login) 
-	{
-		global $user, $auth;
-		
-		$user->session_begin();
-		$auth->acl($user->data);
-		$user->setup();	//'ucp'
-		$admin = false;
-		$viewonline = true;
-		$user->cookie_data['k'] = '';
-		$result = $user->session_create($new_id, $admin, $persist_login, $viewonline);
-		
-		return $result;
-	}
-	
-	/**
 	* Links accounts by username without validation.
 	* Actually wraps link_accounts()
 	* 
@@ -233,10 +210,12 @@ class alink
 	* consideration the case, when the master account is unlinked. If this 
 	* happens, the current user account becomes the master account.
 	*
+	* @warning No Validation
+	*
 	* @param $link_id	the user_id of the linked account
 	* @param $master_id	the id of the master account
 	*/
-	function _unlink_accounts ($link_id = 0, $master_id = 0)
+	function unlink_accounts ($link_id = 0, $master_id = 0)
 	{
 		global $db, $user;
 		
@@ -275,6 +254,70 @@ class alink
 		
 		$db->sql_query($sql);
 		return true;
+	}
+	
+	/**
+	* Check the usernames and passwords for both the master account and the one we're linking to then links the accounts
+	* Validates $master_pass, $linked_username, and $linked_pass
+	*/
+	function link_account_validate ($master_username, $master_pass, $linked_username, $linked_pass)
+	{
+		global $db, $user;
+		
+		// Clean usernames
+		$linked_username = utf8_clean_string($linked_username);
+		$master_username = utf8_clean_string($master_username);
+		
+		$error = array();
+		
+		// Retrieve both users
+		$sql = 'SELECT user_id, user_password, username_clean'.
+			' FROM ' . USERS_TABLE .
+			' WHERE (username_clean = \''. $db->sql_escape($master_username) .'\')';
+		$result = $db->sql_query($sql);
+		$master_user = $db->sql_fetchrow($result);
+		
+		$sql = 'SELECT user_id, user_password, username_clean'.
+			' FROM ' . USERS_TABLE .
+			' WHERE (username_clean = \''. $db->sql_escape($linked_username) .'\')';
+		$result = $db->sql_query($sql);
+		$linked_user = $db->sql_fetchrow($result);
+		
+		// Validate users...
+		$invalid = false;
+
+		// Does $linked_user exist?
+		if ($linked_user['username_clean'] != $linked_username)
+		{
+			$invalid = true;
+			$error[] = sprintf($user->lang['BAD_LINKED_USERNAME'], $linked_username);
+		}
+		
+		// Check Master's password
+		if (!phpbb_check_hash($master_pass, $master_user['user_password']))
+		{
+			$invalid = true;
+			$error[] = $user->lang['BAD_MASTER_PASSWORD'];
+		}
+		
+		// Check Linked's password
+		if (!phpbb_check_hash($linked_pass, $linked_user['user_password']))
+		{
+			$invalid = true;
+			$error[] = $user->lang['BAD_LINKED_PASSWORD'];
+		}
+		
+		// Destroy plaintext passwords... just in case.
+		unset($master_pass, $linked_pass);
+		
+		if ($invalid === false)
+		{
+			return link_accounts($master_user['user_id'], $linked_user['user_id']);
+		} 
+		else 
+		{
+			return implode('<br>', $error);
+		}
 	}
 	
 	/**
@@ -394,71 +437,6 @@ function switch_user($forumid)
 	{
 		meta_refresh(3, $u_redirect);
 		trigger_error('ACCT_SWITCH_ERROR' . $redirect);
-	}
-}
-
-/**
-* Check the usernames and passwords for both the master account and the one we're linking to then links the accounts
-* *Validates $master_pass, $linked_username, and $linked_pass
-*/
-function link_account_validate ($master_username, $master_pass, $linked_username, $linked_pass)
-{
-	global $db, $user;
-	
-	// Clean usernames
-	$linked_username = utf8_clean_string($linked_username);
-	$master_username = utf8_clean_string($master_username);
-	
-	$error = array();
-	
-	// Retrieve both users
-	$sql = 'SELECT user_id, user_password, username_clean'.
-		' FROM ' . USERS_TABLE .
-		' WHERE (username_clean = "'. $master_username .'")';
-	$result = $db->sql_query($sql);
-	$master_user = $db->sql_fetchrow($result);
-	
-	$sql = 'SELECT user_id, user_password, username_clean'.
-		' FROM ' . USERS_TABLE .
-		' WHERE (username_clean = "'. $linked_username .'")';
-	$result = $db->sql_query($sql);
-	$linked_user = $db->sql_fetchrow($result);
-	
-	// Validate users... assume the worst.
-	$master_pass_valid = $linked_pass_valid = $linked_username_valid = false;
-
-	// Does $linked_user exist?
-	if ($linked_user['username_clean'] == $linked_username)
-	{
-		$linked_username_valid = true;
-	} else {
-		$error[] = sprintf($user->lang['BAD_LINKED_USERNAME'], $linked_username);
-	}
-	
-	// Check Master's password
-	if (phpbb_check_hash($master_pass, $master_user['user_password']))
-	{
-		$master_pass_valid=true;
-	} else {
-		$error[] = $user->lang['BAD_MASTER_PASSWORD'];
-	}
-	
-	// Check Linked's password
-	if (phpbb_check_hash($linked_pass, $linked_user['user_password']))
-	{
-		$linked_pass_valid=true;
-	} else {
-		$error[] = $user->lang['BAD_LINKED_PASSWORD'];
-	}
-	
-	// Destroy plaintext passwords... just in case.
-	unset($master_pass, $linked_pass);
-	
-	if ($master_pass_valid && $linked_pass_valid)
-	{
-		return link_accounts($master_user['user_id'], $linked_user['user_id']);
-	} else {
-		return implode('<br>', $error);
 	}
 }
 
