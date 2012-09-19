@@ -12,18 +12,34 @@
 /**
 * @ignore
 */
-if (!defined('IN_PHPBB'))
+define('IN_PHPBB', true);
+$phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
+$phpEx = substr(strrchr(__FILE__, '.'), 1);
+include($phpbb_root_path . 'common.' . $phpEx);
+include($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
+include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+include($phpbb_root_path . 'includes/message_parser.' . $phpEx);
+
+// Start session management
+$user->session_begin();
+$auth->acl($user->data);
+$user->setup('mods/account_link');
+
+// Exclude Bots
+if ($user->data['is_bot'])
 {
-	exit;
+	redirect(append_sid("{$phpbb_root_path}index.$phpEx"));
 }
 
-// we centralize the account switching, so that we don't have to rely on the ucp module
-global $user, $db, $auth, $phpbb_root_path, $phpEx;
-global $alink;
+//Check if you are locked or not
+if (!$auth->acl_get('u_use_alink'))
+{
+	trigger_error('NOT_AUTHORISED');
+}
 
 // get all reqired values
-$new_user = request_var('switch_id', 0);
-$u_redirect = request_var('redirect', "{$phpbb_root_path}index.$phpEx");
+$new_user = request_var('i', 0);
+$u_redirect = request_var('r', "{$phpbb_root_path}index.$phpEx");
 
 // sanitize input
 if($new_user === 0)
