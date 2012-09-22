@@ -1,0 +1,65 @@
+<!-- IF S_KEYWORD_VERSION -->
+<!--
+/**
+* UCP Account Link Switch User drop down
+*
+* @author Michael Flenniken, Jr drakkim@conclavewiz.comm
+*
+* @version $Id: account_link_form.html 77 2012-09-02 10:48:53Z drakkim $
+* @copyright (c) 2008 Michael Flenniken, Jr
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+*/
+//-->
+<!-- ENDIF -->
+
+<!-- IF not S_IS_BOT and S_USER_LOGGED_IN -->
+<!-- IF .linked > 1 -->
+<form id="alink" method="post" action="{U_SWITCH_PROFILE}" style="margin: 0; padding: 0; display: inline;">
+	<select id="switch_user" name="i" title="{L_SWITCH_USER}">
+		<option value="0" selected>{L_SWITCH_USER}</option>
+		<!-- BEGIN linked -->
+			<!-- IF linked.USER_ID != USER_ID -->
+				<option value="{linked.USER_ID}">{linked.USERNAME}</option>
+			<!-- ENDIF -->
+		<!-- END linked -->
+	</select>
+	<input type="hidden" name="r" value="{U_THIS_URL}" />
+	<noscript>
+		<input type="submit" name="submit" value="{L_SWITCH_USER}" />
+	</noscript>
+</form> &#8226; 
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	var title = $('#switch_user').attr('title');
+	$('#switch_user')
+		.css({'z-index':10, 'opacity':0, '-khtml-appearance':'none'})
+		.after('<a id="sw_text">' + title + '</a>')
+		.hover(function(){
+				$('#sw_text').addClass("hovered");
+
+			}, 
+			function(){
+				$('#sw_text').removeClass("hovered");
+			})
+		.change(function(){
+				if($('select option:selected').text() != "0") {
+					$('#alink').submit();
+				}
+			});
+	$('#switch_user').width($('#sw_text').width());
+	
+	// position the text
+	var offset = $('#switch_user').offset();
+	offset.top += ( 2+($('#switch_user').height()-$('#sw_text').height())/2);
+	$('#sw_text').offset(offset);
+});
+
+
+</script>
+
+<!-- ELSE -->
+	<span title="{L_NO_LINKED_ACCOUNTS}" style="color: #FFFFFF">{L_SWITCH_USER}</span> &#8226; 
+<!-- ENDIF -->
+<!-- ENDIF -->

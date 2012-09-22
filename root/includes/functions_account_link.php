@@ -27,7 +27,9 @@ class alink
 	 */
 	function alink()
 	{
-		$user->add_lang('mod/account_link');
+		global $user, $config;
+	
+		$user->add_lang('mods/account_link');
 	}
 	
 	/**
@@ -45,34 +47,32 @@ class alink
 		$new_mails = $unread_mails = 0;
 		foreach($linked_accts as $linked)
 		{
-			if ($linked['user_id'] != $user_id)
-			{
-				$template->assign_block_vars('linked', array(
-					'USER_ID'		=> $linked['user_id'],
-					'USERNAME'		=> $linked['username_clean'],
-					'USER_NAME'		=> get_username_string('no_profile', $linked['user_id'], $linked['username'], $linked['user_colour']),
-					'USER_PROFILE'	=> get_username_string('full', $linked['user_id'], $linked['username'], $linked['user_colour']),,
-					
-					'NEW_PM'		=> $linked['user_new_privmsg'],
-					'UNREAD_PM'		=> $linked['user_unread_privmsg'],
-					
-					'FORM_NAME'		=> 'userid_' . $linked['user_id'],
-					'HIDDEN_FIELDS'	=> build_hidden_fields(array(
-						'submit' 	=> 'switch',
-						'switch_id'	=> $linked['user_id'],
-						'redirect'	=> build_url(),
-						)),
-				));
-			}
+			$template->assign_block_vars('linked', array(
+				'USER_ID'		=> $linked['user_id'],
+				'USERNAME'		=> $linked['username'],
+				'USER_NAME'		=> get_username_string('no_profile', $linked['user_id'], $linked['username'], $linked['user_colour']),
+				'USER_PROFILE'	=> get_username_string('full', $linked['user_id'], $linked['username'], $linked['user_colour']),
+				
+				'NEW_PM'		=> $linked['user_new_privmsg'],
+				'UNREAD_PM'		=> $linked['user_unread_privmsg'],
+				
+				'FORM_NAME'		=> 'userid_' . $linked['user_id'],
+				'HIDDEN_FIELDS'	=> build_hidden_fields(array(
+					'submit' 	=> 'switch',
+					'switch_id'	=> $linked['user_id'],
+					'redirect'	=> build_url(),
+					)),
+			));
 			$new_mails += $linked['user_new_privmsg'];
-			$unread_mails += $linked['user_unread_privmsg'],
+			$unread_mails += $linked['user_unread_privmsg'];
 		}
 		
 		$template->assign_vars(array(
-			'ALINK_NEW_MAILS'				=> $new_mails,
-			'ALINK_UNREAD_MAILS'			=> $unread_mails,
+			'ALINK_NEW_MAILS'		=> $new_mails,
+			'ALINK_UNREAD_MAILS'	=> $unread_mails,
+			'USER_ID'				=> $user->data['user_id'],
 			
-			'U_ACCOUNT_LINK_SEND_TO'	=> append_sid($phpbb_root_path ."ucp.$phpEx?i=account_link"),
+			'U_SWITCH_PROFILE'		=> append_sid($phpbb_root_path ."alink.{$phpEx}"),
 		) );
 	}
 	
@@ -96,9 +96,11 @@ class alink
 
 		$sql_array = array(
 			'SELECT'	=> 'u.*',
-			'FROM'		=> USERS_TABLE . ' AS u',
+			'FROM'		=> array(
+				USERS_TABLE	=> 'u',
+			),
 			'WHERE'		=> '(user_id = ' . $user_id . ')
-							OR (master_id = ' . $master_id : ')',
+							OR (master_id = ' . $master_id . ')',
 			);
 
 		// Look up all users with user_id or master_id matching $user_id or $master_id
@@ -109,7 +111,7 @@ class alink
 		}
 		
 		$result = $db->sql_query($db->sql_build_query('SELECT', $sql_array));
-		$linked_accounts = $db->fetchrowset($result);
+		$linked_accounts = $db->sql_fetchrowset($result);
 		$db->sql_freeresult($result);
 		
 		return $linked_accounts;
@@ -230,7 +232,7 @@ class alink
 		$result = $db->sql_query($sql);
 		$link_user = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
-
+		
 		if($link_user['user_id'] == $master_id)
 		{
 			// this account will become the master account, so update all linked accounts with the new master_id
@@ -249,7 +251,7 @@ class alink
 			// remove account from link
 			$sql = 'UPDATE '. USERS_TABLE .'
 					SET master_id = 0
-					WHERE user_id = '. link_user['user_id'];
+					WHERE user_id = '. $link_user['user_id'];
 		}
 		
 		$db->sql_query($sql);
@@ -271,52 +273,68 @@ class alink
 		$error = array();
 		
 		// Retrieve both users
-		$sql = 'SELECT user_id, user_password, username_clean'.
+		$sql = 'SELECT user_id, user_password, username_clean, master_id'.
 			' FROM ' . USERS_TABLE .
 			' WHERE (username_clean = \''. $db->sql_escape($master_username) .'\')';
 		$result = $db->sql_query($sql);
 		$master_user = $db->sql_fetchrow($result);
+		$db->sql_freeresult($result);
 		
-		$sql = 'SELECT user_id, user_password, username_clean'.
+		$sql = 'SELECT user_id, user_password, username_clean, master_id'.
 			' FROM ' . USERS_TABLE .
 			' WHERE (username_clean = \''. $db->sql_escape($linked_username) .'\')';
 		$result = $db->sql_query($sql);
 		$linked_user = $db->sql_fetchrow($result);
+		$db->sql_freeresult($result);
 		
 		// Validate users...
-		$invalid = false;
+		$error = array();
 
 		// Does $linked_user exist?
 		if ($linked_user['username_clean'] != $linked_username)
 		{
-			$invalid = true;
 			$error[] = sprintf($user->lang['BAD_LINKED_USERNAME'], $linked_username);
 		}
 		
 		// Check Master's password
 		if (!phpbb_check_hash($master_pass, $master_user['user_password']))
 		{
-			$invalid = true;
 			$error[] = $user->lang['BAD_MASTER_PASSWORD'];
 		}
 		
 		// Check Linked's password
 		if (!phpbb_check_hash($linked_pass, $linked_user['user_password']))
 		{
-			$invalid = true;
 			$error[] = $user->lang['BAD_LINKED_PASSWORD'];
 		}
+		
+		// Check if linked account is already used
+		if ($linked_user['master_id'] != 0)
+		{
+			$error[] = $user->lang['CANNOT_LINK_MASTER'];
+		}
+		
+		// check if linked account is a master
+		$sql = 'SELECT COUNT(user_id) AS count 
+			FROM ' . USERS_TABLE . ' 
+			WHERE master_id = ' . $linked_user['user_id'];
+		$result = $db->sql_query($sql);
+		if( ((int) $db->sql_fetchfield('count')) > 0)
+		{
+			$error[] = $user->lang['CANNOT_LINK_MASTER'];
+		}
+		$db->sql_freeresult($result);
 		
 		// Destroy plaintext passwords... just in case.
 		unset($master_pass, $linked_pass);
 		
-		if ($invalid === false)
+		if (!sizeof($error))
 		{
-			return link_accounts($master_user['user_id'], $linked_user['user_id']);
+			return $this->_link_accounts($master_user['user_id'], $linked_user['user_id']);
 		} 
 		else 
 		{
-			return implode('<br>', $error);
+			return $error;
 		}
 	}
 	
@@ -336,8 +354,8 @@ class alink
 			return false;
 		}
 		
-		$accounts = $this->get_linked_accounts($user_id);
-		foreach($account as i => $linked)
+		$linked_accts = $this->get_linked_accounts($user_id);
+		foreach($linked_accts as $linked)
 		{
 			// test if we found the value
 			if($linked['user_id'] == $test_id)

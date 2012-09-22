@@ -1,0 +1,139 @@
+<!-- IF S_KEYWORD_VERSION -->
+<!--
+/**
+* UCP Account Link Template for subSilver2
+*
+* @author Michael Flenniken, Jr drakkim@conclavewiz.comm
+*
+* @version $Id: ucp_account_link.html 77 2012-09-02 10:48:53Z drakkim $
+* @copyright (c) 2008 Michael Flenniken, Jr
+* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+*/
+//-->
+<!-- ENDIF -->
+<!-- INCLUDE ucp_header.html -->
+
+<table class="tablebg" width="100%" cellspacing="1">
+<tr>
+	<th colspan="2" valign="middle">{L_MANAGE_LINKED_ACCOUNTS}</th>
+</tr>
+<tr>
+	<td class="row3" colspan="2"><span class="gensmall">{L_MANAGE_LINKED_ACCOUNTS_EXPLAIN}</span></td>
+</tr>
+<!-- IF ERROR -->
+	<tr>
+		<td class="row3" colspan="2" align="center"><span class="gensmall" style="color:red">{ERROR}</span></td>
+	</tr>
+<!-- ENDIF -->
+<!-- IF MESSAGE -->
+	<tr>
+		<td class="row3" colspan="2" align="center"><span class="gensmall" style="color:green">{MESSAGE}</span></td>
+	</tr>
+<!-- ENDIF -->
+</table>
+<br />
+
+<table class="tablebg" width="100%" cellspacing="1">
+<!-- IF IS_MASTER_ACCOUNT -->
+<!-- Add Account Links -->
+	<tr>
+		<td class="row3" colspan="2" valign="middle"><h3 style="text-align: center">{L_LINK_ACCOUNTS}</h3></td>
+	</tr>
+	<tr>
+		<td class='row1'><b class="genmed">{L_USERNAME}:</b></td>
+		<td class='row2'><input name="linked_name" class="inputbox" size="25"></td>
+	</tr>
+	<tr>
+		<td class='row1'><b class="genmed">{L_PASSWORD}:</b></td>
+		<td class='row2'><input name="linked_pass" class="inputbox" size="25" type="password"></td>
+	</tr>
+	<tr>
+		<td class="row3" colspan="2" valign="middle"><h3 style="text-align: center">{L_VERIFY_MASTER_ACCOUNT}</h3></td>
+	</tr>
+	<tr>
+		<td class='row1' width="40%"><b class="genmed">{L_USERNAME}:</b></td>
+		<td class='row2'>{S_MASTER_NAME} <hidden name="master_user" value="{S_MASTER_NAME}"></td>
+	</tr>
+	<tr>
+		<td class='row1'><b class="genmed">{L_PASSWORD}:</b></td>
+		<td class='row2'><input name="master_pass" class="inputbox" size="25" type="password"></td>
+	</tr>
+	<tr>
+		<td class="cat" colspan="2" align="center">
+			{S_HIDDEN_FIELDS}
+			<button class="btnmain" type="submit" name="submit" value="link">{L_LINK_USERS}</button>&nbsp;&nbsp;
+			<input class="btnlite" type="reset" value="{L_RESET}" name="reset" />
+		</td>
+	</tr>
+<!-- End Add Account Links -->
+
+<!-- IF .linked > 1 -->
+<!-- Remove Account Links -->
+</table>
+<br />
+<table class="tablebg" width="100%" cellspacing="1">
+	<tr>
+		<td class="row3" colspan="2"><h3 style="text-align: center">{L_UNLINK_ACCOUNTS}</h3></td>
+	</tr>
+	<tr>
+		<td class='row1' width="40%"><b class="genmed">{L_LINKED_ACCOUNTS}:</b></td>
+		<td class="row2" align="center">
+			<select name="userids[]" size="5" style="width: 100%">
+				<!-- BEGIN linked -->
+					<!-- IF linked.USER_ID != USER_ID -->
+						<option value="{linked.USER_ID}">{linked.USERNAME}</option>
+					<!-- ENDIF -->
+				<!-- END linked -->
+			</select>
+		</td>
+	</tr><tr>
+		<td class="cat" colspan="2" align="center">
+			{S_HIDDEN_FIELDS}
+			<button class="btnmain" type="submit" name="submit" value="unlink">{L_UNLINK_USERS}</button>
+		</td>
+	</tr>
+<!-- End Remove Account Links -->
+<!-- ENDIF -->
+
+<!-- Start Configure account settings -->
+</table>
+<br />
+<table class="tablebg" width="100%" cellspacing="1">
+	<tr>
+		<td class="row3" colspan="2"><h3 style="text-align: center">{L_CONFIG_LINKED_ACCOUNTS}</h3></td>
+	</tr>
+	<tr>
+		<td class="row1" width="40%"><b class="genmed">{L_CONFIG_LINKED_POSITION}:</b></td>
+		<td class="row2">
+			<select name="disp_pos">
+				<option value="1" <!-- IF S_ALINK_POSITION eq 1 -->selected<!-- ENDIF -->>{L_CONFIG_POSITION_UAVA}</option>
+				<option value="2" <!-- IF S_ALINK_POSITION eq 2 -->selected<!-- ENDIF -->>{L_CONFIG_POSITION_USIG}</option>
+				<option value="0" <!-- IF S_ALINK_POSITION eq 0 -->selected<!-- ENDIF -->>{L_CONFIG_POSITION_UMAN}</option>
+			</select>
+		</td>
+	<tr>
+		<td class="row1"><b class="genmed">{L_CONFIG_POSITION_HIDE}:</b><br /><span class="gensmall">{L_CONFIG_POSITION_HIDE_EXPLAIN}</span></td>
+		<td class="row2"><input type="radio" class="radio" name="hide_acc" value="1"<!-- IF S_ALINK_HIDE --> checked="checked"<!-- ENDIF --> /><span class="genmed">{L_YES}</span>&nbsp;&nbsp;<input type="radio" class="radio" name="hide_acc" value="0"<!-- IF not S_ALINK_HIDE --> checked="checked"<!-- ENDIF --> /><span class="genmed">{L_NO}</span></td>
+	</tr>
+		<td class="row1"><b class="genmed">{L_CONFIG_POSITION_MULTI_PN}</b>:</td>
+		<td class="row2"><input type="radio" class="radio" name="multi_pn" value="1"<!-- IF S_ALINK_PM_MODE --> checked="checked"<!-- ENDIF --> /><span class="genmed">{L_YES}</span>&nbsp;&nbsp;<input type="radio" class="radio" name="multi_pn" value="0"<!-- IF not S_ALINK_PM_MODE --> checked="checked"<!-- ENDIF --> /><span class="genmed">{L_NO}</span></td>
+	</tr>
+	<tr>
+		<td class="cat" colspan="2" align="center">
+			{S_HIDDEN_FIELDS}
+			<button class="btnmain" type="submit" name="submit" value="config">{L_SUBMIT}</button>&nbsp;&nbsp;
+			<input class="btnlite" type="reset" value="{L_RESET}" name="reset" />
+		</td>
+	</tr>
+<!-- End Configure account settings -->
+
+<!-- ELSE -->
+	<tr>
+		<td class="cat" colspan="2">
+			{L_NOT_MASTER}
+		</td>
+	</tr>
+<!-- ENDIF -->
+</table>
+
+<!-- INCLUDE ucp_footer.html -->

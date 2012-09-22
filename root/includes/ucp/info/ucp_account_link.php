@@ -22,8 +22,9 @@ class ucp_account_link_info
 			'title'		=> 'Account Link Mod',
 			'version'	=> '0.7.9',
 			'modes'		=> array(
-				'manage'	=> array('title' => 'Manage Linked Accounts', 'auth' => '', 'cat' => array('Account Links')),
-				'create'	=> array('title' => 'Create a Linked Account', 'auth' => '', 'cat' => array('Account Links')),
+				'switch'	=> array('title' => 'SWITCH_LINKED_ACCOUNTS', 'auth' => '', 'cat' => array('ACCOUNT_LINK')),
+				'manage'	=> array('title' => 'MANAGE_LINKED_ACCOUNTS', 'auth' => '', 'cat' => array('ACCOUNT_LINK')),
+				'create'	=> array('title' => 'CREATE_LINKED_ACCOUNT', 'auth' => 'acl_u_alink_create', 'cat' => array('ACCOUNT_LINK')),
 				//'create_join'	=> array('title' => 'Create a Linked Account and join a Group', 'auth' => '', 'cat' => array('Account Links'))
 			),
 		);
