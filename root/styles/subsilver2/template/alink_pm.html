@@ -14,13 +14,13 @@
 
 <!-- IF not S_IS_BOT and S_USER_LOGGED_IN -->
 <!-- IF .linked > 1 -->
-<form id="alink" method="post" action="{U_SWITCH_PROFILE}" style="margin: 0; padding: 0; display: inline;">
-	<select id="switch_user" name="i" data-title="{L_SWITCH_USER}" title="{L_SWITCH_USER}">
+<form id="alink_pm" method="post" action="{U_SWITCH_PROFILE}" style="margin: 0; padding: 0; display: inline;">
+	<select id="switch_pm" class="select_box" name="i" data-title="{ALINK_PRIVMSG_TEXT} {ALINK_PRIVMSG_UNREAD}" title="{L_SWITCH_USER}">
 		<!-- BEGIN linked -->
-				<option value="{linked.USER_ID}" <!-- IF linked.USER_ID == USER_ID -->disabled="disabled"<!-- ENDIF -->>{linked.USERNAME}</option>
+				<option value="{linked.USER_ID}">{linked.USERNAME}: {linked.NEW_PM_TEXT}</option>
 		<!-- END linked -->
 	</select>
-	<input type="hidden" name="r" value="{U_THIS_URL}" />
+	<input type="hidden" name="r" value="{U_PM_BOX}" />
 	<noscript>
 		<input type="submit" name="submit" value="{L_SWITCH_USER}" />
 	</noscript>
@@ -29,11 +29,12 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
-	$('#switch_user').selectBox().change(function(){
+	$('#switch_pm').selectBox().change(function(){
 			if($(this).val() != 0)
-				$('#alink').submit();
+				$('#alink_pm').submit();
 		});
 });
+
 
 </script>
 

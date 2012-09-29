@@ -14,6 +14,11 @@
 /**
 * DO NOT CHANGE
 */
+if (!defined('IN_PHPBB'))
+{
+	exit;
+}
+
 if (empty($lang) || !is_array($lang))
 {
 	$lang = array();
@@ -50,12 +55,20 @@ $lang = array_merge($lang, array(
 	'LINK_USERS'			=> 'Benutzer verknüpfen',
 	'UNLINK_USERS'			=> 'Benutzer trennen',
 	'NO_LINKED_ACCOUNTS'	=> 'Keine verknüpften Accounts gefunden',
+	
+	// ACP Fields
+	'ACP_USER_ALINK'		=> 'Verknüpfte Konten',
+	'LINKED_USERS'			=> 'Verlinkte Benutzerkonten',
+	'MASTER_ACCOUNT'		=> 'Hauptkonto',
+	'USER_UNLINK'			=> 'Benutzer entfernen',
+	'USER_LINK'				=> 'Benutzerkonto hinzufügen',
 
 	// Field labels
 	'USERNAME'	=> 'Benutzername',
 	'PASSWORD'	=> 'Passwort',
 
 	'LINKED_ACCOUNTS'	=> 'Verknüpfte Konten',
+	'HIDDEN_ACCOUNT'	=> '--- ausgeblendet ---',
 
 	// Messages
 	'LINK_SUCCESS'					=> 'Verknüpfung erfolgreich',

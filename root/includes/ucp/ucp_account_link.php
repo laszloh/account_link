@@ -206,7 +206,6 @@ class ucp_account_link
 			'S_ALINK_HIDE'		=> ($user->data['alink_hidespeci']) ? true : false,
 			'S_ALINK_PM_MODE'	=> ($user->data['alink_pm_mode']) ? true : false,
 			
-			'U_THIS_URL'		=> $this->u_action,
 			'S_UCP_ACTION'		=> ($mode=='switch') ? "{$phpbb_root_path}alink.{$phpEx}" : $this->u_action,
 		));
 	}

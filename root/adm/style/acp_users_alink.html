@@ -1,0 +1,22 @@
+<form id="user_linked" method="post" action="{U_ACTION}">
+
+<table cellspacing="1">
+<tbody>
+	<tr>
+		<td class="row3" colspan="4"><strong>{L_LINKED_USERS}</strong></td>
+	</tr>
+<!-- BEGIN linked -->
+	<!-- IF linked.S_ROW_COUNT is even --><tr class="row1"><!-- ELSE --><tr class="row2"><!-- ENDIF -->
+		<td><a href="{U_CHANGE_USER}{linked.USER_ID}">{linked.USERNAME}</a></td>
+		<td><!-- IF linked.USER_ID neq S_MASTER_ACCOUNT --><a href="{U_ACTION_UNLINK}{linked.USER_ID}">{L_USER_UNLINK}</a><!-- ELSE -->{L_MASTER_ACCOUNT}<!-- ENDIF --></td>
+	</tr>
+<!-- END linked -->
+</tbody>
+</table>
+
+<fieldset class="quick">
+	{L_USER_LINK}: <input class="text small" type="text"  id="username" name="username" />&nbsp;&nbsp;<input class="button1" type="submit" name="update" value="{L_SUBMIT}" />
+	<br />[ <a href="{U_FIND_USERNAME_LINK}" onclick="find_username(this.href); return false;">{L_FIND_USERNAME}</a> ]
+	{S_FORM_TOKEN}
+</fieldset>
+</form>

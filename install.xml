@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
 <!--For security purposes, please check: http
 ://www.phpbb.com/mods/ for the latest version of this MOD. Although MODs are checked before being allowed in the MODs Database there is no guarantee that there are no security problems within the MOD. No support will be given for MODs not found within the MODs Database which can be found at http://www.phpbb.com/mods/-->
-<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.2.xsd">
+<mod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phpbb.com/mods/xml/modx-1.2.5.xsd">
 	<header>
 		<license>http://opensource.org/licenses/gpl-license.php GNU General Public License v2</license>
 		
@@ -10,12 +10,11 @@
 		<description lang="en">Links accounts so you can easily switch between them.</description>
 		<author-notes lang="en">
 			<![CDATA[
-			All the file edits are OPTIONAL. They allow you to put the drop-down to change accounts in the templates. Otherwise, you can still switch accounts from the UCP or MCP module.
-			
-			The MCP "Moderate Account Links" is VERY much test code, and I do not recommend that you install it in a live forum.
-			At the moment, there is nothing keeping a moderator with user admin privs from linking to a founder account and taking over.
+			All the file edits in the styles are OPTIONAL. They allow you to put the drop-down to change accounts in the templates. Otherwise, you can still switch accounts from the UCP.
 			
 			A number of problems related to this mod seem to come from incorrect cookie settings. If the mod looks like everything should work, but switching users only logs you out, check your cookie settings. 
+			
+			Many thanks to Michael Flenniken, Jr. (Drakkim) for the original mod. Without that, this fork would not have seen the light of the world.
 			
 			Many thanks to Greg Effland (geeffland from cbconnector.com) for the function that made this mod possible.
 			I also would like to thank all the people who have tested and complained along the way... Without you it would be progresing ;-)
@@ -31,14 +30,19 @@
 				<username>Drakkim</username>
 				<homepage>http://conclavewiz.com</homepage>
 			</author>
+			<author>
+				<realname>laszlo Hegedüs</realname>
+				<email>simon.dechain@gmail.com</email>
+				<username>Simon Dechain</username>
+			</author>
 		</author-group>
 		
-		<mod-version>0.7.9</mod-version>
+		<mod-version>1.0.0-fork</mod-version>
 		
 		<installation>
 			<level>easy</level>
 			<time>300</time>
-			<target-version>3.0.9</target-version>
+			<target-version>3.0.11</target-version>
 		</installation>
 		
 		<history>
@@ -97,7 +101,7 @@
 				</changelog>
 			</entry>
 			<entry>
-				<date>2008-10-5</date>
+				<date>2008-10-05</date>
 				<rev-version>0.7.0</rev-version>
 				<changelog lang="en">
 					<change>Update to phpBB 3.0.2 and MODX 1.2.1</change>
@@ -110,7 +114,7 @@
 				</changelog>
 			</entry>
 			<entry>
-				<date>2009-1-2</date>
+				<date>2009-01-02</date>
 				<rev-version>0.7.1</rev-version>
 				<changelog lang="en">
 					<change>Update to phpBB 3.0.3 and MODX 1.2.1</change>
@@ -121,7 +125,7 @@
 				</changelog>
 			</entry>
 			<entry>
-				<date>2009-1-29</date>
+				<date>2009-01-29</date>
 				<rev-version>0.7.2</rev-version>
 				<changelog lang="en">
 					<change>[Bug Fix] Clear autologin cookie before switching users (Thanks Khamosh-Saya and Arkos)</change>
@@ -131,7 +135,7 @@
 				</changelog>
 			</entry>
 			<entry>
-				<date>2009-2-17</date>
+				<date>2009-02-17</date>
 				<rev-version>0.7.3</rev-version>
 				<changelog lang="en">
 					<change>Update to phpBB 3.0.4 and MODX 1.2.2</change>
@@ -143,7 +147,7 @@
 				</changelog>
 			</entry>
 			<entry>
-				<date>2009-2-19</date>
+				<date>2009-02-19</date>
 				<rev-version>0.7.3a</rev-version>
 				<changelog lang="en">
 					<change>[Bug Fix] Can't switch to first account in list (Thanks Natural-Hazard)</change>
@@ -203,96 +207,263 @@
 					<change>[Cleanup] Cleaned up all template files</change>
 				</changelog>
 			</entry>
+			<entry>
+				<date>2012-09-25</date>
+				<rev-version>1.0.0-fork</rev-version>
+				<changelog lang="en">
+					<change>Fork the account link mod and increase version number to represent the forking</change>
+				</changelog>
+			</entry>
 		</history>
 		
 	</header>
 	
 	<action-group>
-		<sql><![CDATA[ALTER TABLE phpbb_users ADD master_id MEDIUMINT( 8 ) UNSIGNED DEFAULT 0;]]></sql>
-
 		<copy>
-			<file from="root/includes/functions_account_link.php" to="includes/functions_account_link.php" />
-			<file from="root/includes/account_link_cfg.php" to="includes/account_link_cfg.php" />
-			<file from="root/includes/ucp/ucp_account_link.php" to="includes/ucp/ucp_account_link.php" />
-			<file from="root/includes/ucp/info/ucp_account_link.php" to="includes/ucp/info/ucp_account_link.php" />
-			<file from="root/includes/mcp/mcp_account_link.php" to="includes/mcp/mcp_account_link.php" />
-			<file from="root/includes/mcp/info/mcp_account_link.php" to="includes/mcp/info/mcp_account_link.php" />
-			<file from="root/language/en/mods/account_link.php" to="language/en/mods/account_link.php" />
-			<file from="root/styles/prosilver/template/account_link_form.html" to="styles/prosilver/template/account_link_form.html" />
-			<file from="root/styles/prosilver/template/ucp_account_link_create.html" to="styles/prosilver/template/ucp_account_link_create.html" />
-			<file from="root/styles/prosilver/template/mcp_account_link_manage.html" to="styles/prosilver/template/mcp_account_link_manage.html" />
-			<file from="root/styles/prosilver/template/mcp_account_link_moderate.html" to="styles/prosilver/template/mcp_account_link_moderate.html" />
-			<file from="root/styles/prosilver/template/ucp_account_link.html" to="styles/prosilver/template/ucp_account_link.html" />
-			<file from="root/styles/subsilver2/template/account_link_form.html" to="styles/subsilver2/template/account_link_form.html" />
-			<file from="root/styles/subsilver2/template/mcp_account_link_manage.html" to="styles/subsilver2/template/mcp_account_link_manage.html" />
-			<file from="root/styles/subsilver2/template/mcp_account_link_moderate.html" to="styles/subsilver2/template/mcp_account_link_moderate.html" />
-			<file from="root/styles/subsilver2/template/ucp_account_link.html" to="styles/subsilver2/template/ucp_account_link.html" />
-			<file from="root/styles/subsilver2/template/ucp_account_link_create.html" to="styles/subsilver2/template/ucp_account_link_create.html" />
+			<file from="root/*.*" to="*.*" />
 		</copy>
 
-		<open src="includes/functions.php">
+		<open src="common.php">
 			<edit>
 				<find>
-	// application/xhtml+xml not used because of IE
+<![CDATA[?>]]>
+				</find>
+				<action type="before-add"><![CDATA[
+// START Account Link
+if(empty($alink))
+{
+	if(!class_exists('alink'))
+	{
+		require($phpbb_root_path . 'includes/functions_account_link.'.$phpEx);
+	}
+	$alink = new alink();
+}
+// END Account Link
+]]>
+				</action>
+			</edit>
+		</open>
+		
+		<open src="viewtopic.php">
+			<edit>
+				<find>
+<![CDATA[		$postrow = array_merge($postrow, $cp_row['row']);
+	}
+]]>
+				</find>
+				<action type="after-add"><![CDATA[
+	// START Account Link
+	global $alink;
+	// dump vars of alink into the postrow block
+	$postrow = array_merge($postrow, $alink->get_linked_account_settings($poster_id));
+	// END Account Link
+]]>
+				</action>
+			</edit>
+			<edit>
+				<find>
+<![CDATA[foreach($attributes as $id => $key)
+]]>
+				</find>
+				<action type="before-add"><![CDATA[
+	// START Account Link
+	// dump vars of alink into the postrow block
+	$alink->get_linked_account_postrow($poster_id);
+	// END Account Link
+]]>
+				</action>
+			</edit>
+		</open>
+		
+		<open src="adm/style/acp_users.html">
+			<edit>
+				<find>
+<![CDATA[	<!-- INCLUDE permission_mask.html -->]]></find>
+				<action type="after-add"><![CDATA[
+<!-- ELSEIF S_ACCOUNT_LINK -->
+
+	<!-- INCLUDE acp_users_alink.html -->
+]]>
+				</action>
+			</edit>
+		</open>
+
+		<open src="includes/acp/acp_users.php">
+			<edit>
+				<find>
+<![CDATA[			break;
+			
+		}]]>
+				</find>
+				<action type="before-add"><![CDATA[
+			// START Account Link			
+			break;
+
+			case 'alink':
+				global $alink;
+				
+				// get the master id
+				$master_id = $alink->get_master_account($user_id);
+				
+				// add new account to user array
+				if($submit)
+				{
+					if(confirm_box(true))
+					{
+						$link_id = request_var('link_id', 0);
+						
+						if(!$link_id)
+						{
+							trigger_error($user->lang['NO_USER'] . adm_back_link($this->u_action . '&amp;u=' . $user_id), E_USER_WARNING);
+						}
+					
+						// we are root, so we assume the operator knows what he's doing
+						$alink->_link_accounts($master_id, $link_id);
+					}
+					else
+					{
+						$sql = 'SELECT user_id
+							FROM ' . USERS_TABLE . "
+							WHERE username_clean = '" . $db->sql_escape(utf8_clean_string($username)) . "'";
+						$result = $db->sql_query($sql);
+						$link_id = (int) $db->sql_fetchfield('user_id');
+						$db->sql_freeresult($result);
+
+						if (!$link_id)
+						{
+							trigger_error($user->lang['NO_USER'] . adm_back_link($this->u_action . '&amp;u=' . $user_id), E_USER_WARNING);
+						}
+						
+						if($alink->count_linked_accounts($link_id))
+						{
+							trigger_error($user->lang['USER_ALREADY_LINKED'] . adm_back_link($this->u_action . '&amp;u=' . $user_id), E_USER_WARNING);
+						}
+
+						confirm_box(false, $user->lang['CONFIRM_OPERATION'], build_hidden_fields(array(
+							'u'			=> $user_id,
+							'i'			=> $id,
+							'mode'		=> $mode,
+							
+							'update'	=> true,
+							'link_id'	=> $link_id
+						)));
+					}
+				}
+				
+				// unlink user accounts
+				if($action === "unlink")
+				{
+					$unlink_id = request_var('id', 0);
+					if (!$unlink_id)
+					{
+						trigger_error($user->lang['NO_USER'] . adm_back_link($this->u_action . '&amp;u=' . $user_id), E_USER_WARNING);
+					}
+				
+					if (confirm_box(true))
+					{
+						// we are root, so we assume the operator knows what he's doing
+						$alink->unlink_accounts($unlink_id);
+						
+						// update all variables
+						$master_id = $alink->get_master_account($user_id);
+					}
+					else
+					{
+						confirm_box(false, $user->lang['CONFIRM_OPERATION'], build_hidden_fields(array(
+							'u'				=> $user_id,
+							'i'				=> $id,
+							'mode'			=> $mode,
+							'action'		=> $action,
+							'id'			=> $unlink_id))
+						);
+					}
+				}
+				
+				// assign block var
+				$alink->get_linked_accounts_tmplt($user_id);
+			
+				$template->assign_vars(array(
+					'S_ACCOUNT_LINK'			=> true,
+					'S_MASTER_ACCOUNT'			=> $master_id,
+					
+					'U_ACTION'					=> $this->u_action . '&amp;u=' . $user_id,
+					'U_ACTION_UNLINK'			=> $this->u_action . '&amp;u=' . $user_id . '&amp;action=unlink&amp;id=',
+					'U_CHANGE_USER'				=> $this->u_action . '&amp;u=',
+					'U_FIND_USERNAME_LINK'		=> append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=searchuser&amp;form=user_linked&amp;field=username&amp;select_single=true'),
+				));
+			//END Account Link
+]]>
+				</action>
+			</edit>
+		</open>
+		
+		<open src="includes/acp/info/acp_users.php">
+			<edit>
+				<find>
+<![CDATA[				'attach'		=> array('title' => 'ACP_USER_ATTACH', 'auth' => 'acl_a_user', 'display' => false, 'cat' => array('ACP_CAT_USERS')),
+]]>
+				</find>
+				<action type="after-add">
+<![CDATA[				'alink'			=> array('title' => 'ACP_USER_ACCOUNT_LINK', 'auth' => 'acl_a_user', 'display' => false, 'cat' => array('ACP_CAT_USERS')),
+]]></action>
+			</edit>
+		</open>
+		
+		
+		<open src="include/functions.php">
+			<edit>
+				<find>
+<![CDATA[	// application/xhtml+xml not used because of IE
 	header('Content-type: text/html; charset=UTF-8');
+]]>
 				</find>
 				<action type="before-add">
-	// Begin Account Link Mod
-	require_once($phpbb_root_path . 'includes/functions_account_link.' . $phpEx);
-	account_link_form ();
-	// End Account Link Mod
-				</action>
+<![CDATA[	// START Account Link
+	global $alink;
+	$alink->get_linked_accounts_tmplt();
+	// END Account Link
+]]></action>
 			</edit>
 		</open>
-		<open src="language/en/acp/common.php">
-			<edit>
-				<find><![CDATA[));]]></find>
-				<action type="before-add"><![CDATA[
-
-	// Account Link Mod Log Entries
-	'LOG_LINK_SUCCESS'		=> 'Linked master user \'%1$s\' to \'%2$s\'',
-	'LOG_LINK_FAILED'		=> 'Failed to link master user \'%1$s\' to \'%2$s\': %3$s',
-	'LOG_LINK_BROKEN'		=> 'Removed link from user \'%1$s\' to user(s) %2$s',]]>
-				</action>
-			</edit>
-		</open>
+		
 		<open src="styles/prosilver/template/overall_header.html">
 			<edit>
 				<find>
-<![CDATA[{L_REGISTER}</a></li><!-- ENDIF -->]]>
+<![CDATA[</script>
+]]>
 				</find>
-				<action type="after-add"><![CDATA[					<li><!-- INCLUDE account_link_form.html --></li>]]></action>
+				<action type="after-add">
+<![CDATA[
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+<script type="text/javascript" src="{T_TEMPLATE_PATH}/jquery.selectBox.js"></script>
+<link rel="stylesheet" href="{T_TEMPLATE_PATH}/jquery.selectbox.css"/ type="text/css">
+]]>
+				</action>
 			</edit>
-		</open>
-		<open src="styles/subsilver2/template/overall_header.html">
 			<edit>
 				<find>
-<![CDATA[									<!-- IF not S_IS_BOT --><a href="{U_LOGIN_LOGOUT}"><img src="{T_THEME_PATH}/images/icon_mini_login.gif" width="12" height="13" alt="*" /> {L_LOGIN_LOGOUT}</a>&nbsp;<!-- ENDIF -->]]>
+<![CDATA[<a href="{U_PRIVATEMSGS}">{PRIVATE_MESSAGE_INFO}</a>]]>
 				</find>
-				<action type="after-add"><![CDATA[<!-- INCLUDE account_link_form.html -->]]></action>
+				<action type="before-add">
+<![CDATA[<!-- IF S_ALINK_PM_MODE and .linked > 1 --><!-- INCLUDE alink_pm.html --><!-- ELSE -->]]>
+				</action>
+				<action type="after-add">
+<![CDATA[<!-- ENDIF -->]]>
+				</action>
+			</edit>
+			<edit>
+				<find>
+<![CDATA[<!-- IF S_DISPLAY_SEARCH --> &bull;]]>
+				</find>
+				<action type="before-add">
+<![CDATA[<!-- INCLUDE alink_form.html -->
+]]>
+				</action>
 			</edit>
 		</open>
+		
 		<diy-instructions lang="en"><![CDATA[
-Open "overall_header.html" for each style you use and add this line where you want the account switch box to be (prodilver and subsilver shouls be done):
-	<!-- INCLUDE account_link_form.html -->
-
-If you want users to be able to create accounts with the same email address:
-1. Go into the Admin Panel
-2. Click "User registration settings" on the left
-3. Scroll down to "Allow e-mail address re-use:" and set it to yes
-	
-Install the UCP Module
-1. Go into the Admin Panel
-2. Click the "System" tab
-3. Under "Module Management" click "User Control Panel"
-4. In the bottom right, there's a drop down with an "Add Module" button... Select "Manage Linked Accounts" (Prosilver should already be done)
-5. Click "Add Module"
-6. Click "Yes"
-7. Click "Back to previous page"
-8. Find the module in the list and click "Enable" next to it
-
-Install the MCP Modules:
-Follow the same instrictions, except "User Control Panel" is "Moderator Control Panel" and "Manage Linked Accounts" or "Moderate Linked Accounts"
+Browse to "account_links_install.php" at your forum and follow the installation instructions. Afterwards delete the file.
 		]]></diy-instructions>
 	</action-group>
 </mod>

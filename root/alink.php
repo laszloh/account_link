@@ -33,6 +33,11 @@ if ($user->data['is_bot'])
 $new_user = request_var('i', 0);
 $u_redirect = request_var('r', "{$phpbb_root_path}index.$phpEx");
 
+if(preg_match("/alink\.$phpEx/", $u_redirect))
+{
+	$u_redirect = "{$phpbb_root_path}index.$phpEx";
+}
+
 // create redirect text
 if ($u_redirect === "{$phpbb_root_path}index.$phpEx" || $u_redirect === "index.$phpEx" || $u_redirect === $_SERVER['REQUEST_URI'])
 {
@@ -42,6 +47,7 @@ else
 {
 	$l_redirect = $user->lang['RETURN_PAGE'];
 }
+
 // append/replace SID (may change during the session for AOL users)
 $u_redirect = reapply_sid($u_redirect);
 $redirect = '<br /><br />' . sprintf($l_redirect, '<a href="' . $u_redirect . '">', '</a>');
@@ -55,6 +61,13 @@ if($new_user === 0)
 	// display the default error to the user
 	meta_refresh(3, $u_redirect);
 	trigger_error($user->lang['ALINK_GENERAL_ERROR'] . $redirect);	
+}
+
+// do a basic test, if we need to care for the rest of this file
+if($new_user == $user->data['user_id'])
+{
+	// just redirect the user without showing him anything
+	redirect(reapply_sid($u_redirect));
 }
 
 // test if current user and new user are linked together
@@ -88,10 +101,8 @@ $result = $user->session_create($new_user, $admin, $persist_login, $viewonline);
 // we are done generate output
 if ($result === true)
 {
-	$message = sprintf($user->lang['ACCOUNT_SWITCH_REDIRECT'], $user->data['username']);
-	
 	meta_refresh(3, reapply_sid($u_redirect));
-	trigger_error($message . $redirect);
+	trigger_error(sprintf($user->lang['ACCOUNT_SWITCH_REDIRECT'], $user->data['username']) . $redirect);
 }
 else
 {
